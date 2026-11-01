@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 品牌色：暖橙，二手交易场景里辨识度高，也符合校园氛围 -->
+    <color name="brand_primary">#FF7043</color>
+    <color name="brand_primary_dark">#D84315</color>
+    <color name="brand_primary_container">#FFE0D6</color>
+    <color name="brand_on_primary_container">#3B1100</color>
+    <color name="brand_secondary">#00897B</color>
+    <color name="brand_secondary_container">#C8F0EA</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+
+    <!-- 页面与卡片背景 -->
+    <color name="bg_page">#FFF6F6F8</color>
+    <color name="bg_card">#FFFFFFFF</color>
+    <color name="bg_subtle">#FFF0F0F3</color>
+    <color name="divider">#FFE8E8EC</color>
+
+    <!-- 文本 -->
+    <color name="text_primary">#FF1F1F24</color>
+    <color name="text_secondary">#FF75757F</color>
+    <color name="text_tertiary">#FFA0A0AA</color>
+
+    <!-- 语义色 -->
+    <color name="price_red">#FFE53935</color>
+    <color name="warning">#FFF29500</color>
+    <color name="success">#FF2E9E5B</color>
+
+    <!-- 商品占位图渐变（后续接入真实图片后仅作为加载占位） -->
+    <color name="photo_1_start">#FFFFCC80</color>
+    <color name="photo_1_end">#FFFF8A65</color>
+    <color name="photo_2_start">#FFB2DFDB</color>
+    <color name="photo_2_end">#FF4DB6AC</color>
+    <color name="photo_3_start">#FFBBDEFB</color>
+    <color name="photo_3_end">#FF64B5F6</color>
+    <color name="photo_4_start">#FFE1BEE7</color>
+    <color name="photo_4_end">#FFBA68C8</color>
+    <color name="photo_5_start">#FFD7CCC8</color>
+    <color name="photo_5_end">#FFA1887F</color>
+    <color name="photo_6_start">#FFF0F4C3</color>
+    <color name="photo_6_end">#FFD4E157</color>
+</resources>

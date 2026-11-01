@@ -1,58 +1,33 @@
-# Built application files
-*.apk
-*.aar
-*.ap_
-*.aab
-
-# Files for the ART/Dalvik VM
-*.dex
-
-# Java class files
-*.class
-
-# Generated files
-bin/
-gen/
-out/
-
-# Gradle files
+# Gradle
 .gradle/
 build/
+!gradle/wrapper/gradle-wrapper.jar
 
-# Local configuration file (sdk path, etc)
-local.properties
-
-# Log Files
-*.log
-
-# Android Studio / IntelliJ
-*.iml
-.idea/
-captures/
-.navigation/
-externals/
-
-# Keystore files
-*.jks
-*.keystore
-
-# Google Services (e.g. APIs or Firebase)
-google-services.json
-
-# Android Profiling
-*.hprof
-
-# Kotlin
+# Kotlin 编译产生的会话目录
 .kotlin/
 
-# Native build
+# 本机配置，含 SDK 绝对路径，不入库
+local.properties
+
+# IDE
+.idea/
+*.iml
+*.hprof
+captures/
 .externalNativeBuild/
 .cxx/
 
-# OS files
+# 系统
 .DS_Store
 Thumbs.db
 
-# Signing
+# 构建产物
+*.apk
+*.ap_
+*.aab
+*.dex
+
+# 密钥与签名
+*.jks
+*.keystore
 keystore.properties
-release/

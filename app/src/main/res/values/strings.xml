@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">校园集市</string>
+
+    <!-- 底部导航 -->
+    <string name="nav_home">首页</string>
+    <string name="nav_publish">发布</string>
+    <string name="nav_favorites">收藏</string>
+    <string name="nav_profile">我的</string>
+
+    <!-- 通用 -->
+    <string name="category_all">全部</string>
+    <string name="feature_coming_soon">该功能正在开发中</string>
+    <string name="load_more_no_data">没有更多了</string>
+    <string name="cd_back">返回</string>
+    <string name="cd_cover">商品图片</string>
+    <string name="cd_empty">空状态插图</string>
+
+    <!-- 首页 -->
+    <string name="home_search">搜索</string>
+    <string name="home_publish">发布闲置</string>
+    <string name="home_empty_title">暂无商品</string>
+    <string name="home_empty_desc">换个分类看看，或者发布你的第一件闲置</string>
+
+    <!-- 详情 -->
+    <string name="detail_title">商品详情</string>
+    <string name="detail_not_found">商品不存在或已下架</string>
+    <string name="detail_label_condition">成色</string>
+    <string name="detail_label_category">分类</string>
+    <string name="detail_section_description">商品描述</string>
+    <string name="detail_seller">卖家</string>
+    <string name="detail_location">交易地点</string>
+    <string name="detail_publish_time">发布时间</string>
+    <string name="detail_favorite">收藏</string>
+    <string name="detail_message">留言</string>
+
+    <!-- 发布 -->
+    <string name="publish_title">发布闲置</string>
+    <string name="publish_photo_hint">添加图片</string>
+    <string name="publish_photo_sub">最多 9 张，支持拍照或相册</string>
+    <string name="publish_field_title">标题</string>
+    <string name="publish_field_price">价格（元）</string>
+    <string name="publish_field_description">描述</string>
+    <string name="publish_field_category">分类</string>
+    <string name="publish_field_condition">成色</string>
+    <string name="publish_pricing_hint">不确定价格？试试智能定价助手 →</string>
+    <string name="publish_submit">发布</string>
+    <string name="publish_error_title">请填写商品标题</string>
+    <string name="publish_error_price">请输入有效的价格</string>
+    <string name="publish_photo_coming_soon">拍照 / 相册功能将在后续提交中接入</string>
+    <string name="publish_submit_coming_soon">发布功能将在接入后端后开放</string>
+    <string name="publish_pricing_coming_soon">智能定价助手将在后续提交中接入</string>
+
+    <!-- 收藏 -->
+    <string name="favorites_title">我的收藏</string>
+    <string name="favorites_empty_title">还没有收藏</string>
+    <string name="favorites_empty_desc">在商品详情页点击收藏，方便以后回来看</string>
+    <string name="favorites_go_shopping">去逛逛</string>
+
+    <!-- 我的 -->
+    <string name="profile_title">我的</string>
+    <string name="profile_guest">未登录</string>
+    <string name="profile_guest_desc">登录后可发布闲置、管理收藏与留言</string>
+    <string name="profile_login">登录 / 注册</string>
+    <string name="profile_my_listings">我发布的</string>
+    <string name="profile_my_messages">我的留言</string>
+    <string name="profile_settings">设置</string>
+    <string name="profile_version">版本 %1$s</string>
+</resources>

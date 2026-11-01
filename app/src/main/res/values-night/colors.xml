@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 深色模式下只覆盖背景与文本，品牌色保持不变 -->
+    <color name="bg_page">#FF121216</color>
+    <color name="bg_card">#FF1E1E24</color>
+    <color name="bg_subtle">#FF2A2A32</color>
+    <color name="divider">#FF33333C</color>
+
+    <color name="text_primary">#FFF2F2F5</color>
+    <color name="text_secondary">#FFB4B4BE</color>
+    <color name="text_tertiary">#FF7C7C88</color>
+
+    <color name="brand_primary_container">#FF5A2A1C</color>
+    <color name="brand_on_primary_container">#FFFFDBCE</color>
+</resources>
