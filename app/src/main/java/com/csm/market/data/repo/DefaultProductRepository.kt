@@ -5,7 +5,9 @@ import com.csm.market.data.local.toDomain
 import com.csm.market.data.local.toEntity
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
+import com.csm.market.data.model.ProductQuery
 import com.csm.market.data.remote.ProductRemoteDataSource
+import com.csm.market.data.remote.dto.CreateProductRequest
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,7 +79,48 @@ class DefaultProductRepository(
         dao.upsert(product.toEntity(clock()))
     }
 
+    override suspend fun search(query: ProductQuery): List<Product> {
+        val results = remote.searchProducts(query)
+        if (results.isNotEmpty()) {
+            val now = clock()
+            dao.upsertAll(results.map { it.toEntity(now) })
+        }
+        _isOffline.value = false
+        return results
+    }
+
     override suspend fun countProducts(): Int = dao.count()
+
+    override suspend fun publish(
+        product: NewProduct,
+        images: List<java.io.File>,
+        onProgress: (done: Int, total: Int) -> Unit
+    ): Product {
+        // 先传图再建商品：商品一旦创建就出现在列表里，图片还没传完会让买家看到空壳
+        val total = images.size
+        onProgress(0, total)
+        val paths = images.mapIndexed { index, file ->
+            val path = remote.uploadImage(file)
+            onProgress(index + 1, total)
+            path
+        }
+        val created = remote.publishProduct(
+            CreateProductRequest(
+                title = product.title,
+                price = product.price,
+                originalPrice = product.originalPrice,
+                category = product.category.name,
+                condition = product.condition.name,
+                description = product.description,
+                location = product.location,
+                sellerName = product.sellerName,
+                images = paths
+            )
+        )
+        dao.upsert(created.toEntity(clock()))
+        _isOffline.value = false
+        return created
+    }
 
     private suspend fun refreshCache(category: ProductCategory?) = refreshMutex.withLock {
         try {

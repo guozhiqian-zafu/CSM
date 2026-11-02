@@ -60,7 +60,7 @@ class HomeFragment : Fragment() {
         binding.toolbar.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_search -> {
-                    toast(getString(R.string.feature_coming_soon))
+                    findNavController().navigate(R.id.action_home_to_search)
                     true
                 }
                 else -> false

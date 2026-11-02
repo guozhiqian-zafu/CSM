@@ -6,6 +6,8 @@ import com.csm.market.data.local.toEntity
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductCondition
+import com.csm.market.data.model.ProductQuery
+import java.io.File
 import com.csm.market.data.remote.ProductRemoteDataSource
 import com.csm.market.data.remote.dto.CreateProductRequest
 import com.csm.market.data.remote.dto.PriceStatsDto
@@ -163,6 +165,11 @@ class DefaultProductRepositoryTest {
             return products.filter { category == null || it.category == category }
         }
 
+        override suspend fun searchProducts(query: ProductQuery, page: Int, size: Int): List<Product> {
+            failure?.let { throw it }
+            return products
+        }
+
         override suspend fun fetchProduct(id: String): Product? {
             failure?.let { throw it }
             return singleResult
@@ -174,5 +181,14 @@ class DefaultProductRepositoryTest {
         }
 
         override suspend fun fetchPriceStats(category: ProductCategory?): PriceStatsDto = PriceStatsDto()
+
+        override suspend fun uploadImage(file: File): String {
+            failure?.let { throw it }
+            uploadedFiles += file.name
+            return "/uploads/${file.name}"
+        }
+
+        /** 记录上传过哪些文件，用来断言「几张图就上传几次」。 */
+        val uploadedFiles = mutableListOf<String>()
     }
 }

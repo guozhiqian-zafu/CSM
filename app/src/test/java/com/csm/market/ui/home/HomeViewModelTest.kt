@@ -5,6 +5,7 @@ import com.csm.market.core.ui.UiState
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductCondition
+import com.csm.market.data.model.ProductQuery
 import com.csm.market.data.repo.ProductRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -149,6 +150,8 @@ class HomeViewModelTest {
 
         override suspend fun getProduct(id: String): Product? =
             source.value.firstOrNull { it.id == id }
+
+        override suspend fun search(query: ProductQuery): List<Product> = emptyList()
 
         override suspend fun saveProduct(product: Product) = Unit
 

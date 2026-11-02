@@ -43,6 +43,14 @@
     <!-- 离线横幅：不打断浏览，只提示「看到的是缓存」 -->
     <string name="home_offline_banner">离线模式：当前展示本地缓存，联网后会自动更新</string>
 
+    <!-- 搜索 -->
+    <string name="search_title">搜索</string>
+    <string name="search_hint">搜教材、数码、生活用品…</string>
+    <string name="search_prompt_title">想找点什么？</string>
+    <string name="search_prompt_desc">输入关键词，比如「高数」「自行车」「台灯」</string>
+    <string name="search_empty_title">没有找到相关商品</string>
+    <string name="search_empty_desc">换个关键词试试，或者回首页刷刷看</string>
+
     <!-- 详情 -->
     <string name="detail_title">商品详情</string>
     <string name="detail_not_found">商品不存在或已下架</string>
@@ -66,6 +74,12 @@
     <string name="publish_field_condition">成色</string>
     <string name="publish_pricing_hint">不确定价格？试试智能定价助手 →</string>
     <string name="publish_submit">发布</string>
+    <!-- 图片流水线相关文案 -->
+    <string name="publish_photo_thumb">已选择的照片</string>
+    <string name="publish_photo_remove">移除这张照片</string>
+    <string name="publish_submitting">正在发布…</string>
+    <string name="publish_uploading">上传图片 %1$d/%2$d…</string>
+    <string name="publish_pricing_hint_coming_soon">智能定价助手正在接入中</string>
     <string name="publish_error_title">请填写商品标题</string>
     <string name="publish_error_price">请输入有效的价格</string>
     <string name="publish_photo_coming_soon">拍照 / 相册功能将在后续提交中接入</string>

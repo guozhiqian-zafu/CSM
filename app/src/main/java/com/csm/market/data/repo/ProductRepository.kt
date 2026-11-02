@@ -2,6 +2,7 @@ package com.csm.market.data.repo
 
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
+import com.csm.market.data.model.ProductQuery
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -23,11 +24,31 @@ interface ProductRepository {
     /** 按分类观察商品列表；[category] 传 null 表示全部。 */
     fun observeProducts(category: ProductCategory? = null): Flow<List<Product>>
 
+    /**
+     * 搜索商品：关键词、分类、成色、价格区间、排序一次性交给服务端。
+     *
+     * 返回 List 而不是 Flow：搜索结果是一次性的快照，不像首页那样需要「表变了自动刷新」，
+     * 用户每次改条件都重新请求。结果会顺带写入缓存，点进详情时即使断网也能看。
+     */
+    suspend fun search(query: ProductQuery): List<Product>
+
     /** 按 id 取单个商品，不存在返回 null（不是抛异常）。 */
     suspend fun getProduct(id: String): Product?
 
     /** 新增或覆盖一条商品；发布页会用到。 */
     suspend fun saveProduct(product: Product)
+
+    /**
+     * 发布商品：先逐张上传图片拿到服务端地址，再提交商品。
+     *
+     * [images] 是已经压缩好的本地文件；[onProgress] 的签名是 (已完成, 总数)，
+     * 发布页据此显示「正在上传第 2/3 张」——上传 3 张图要好几秒，没有进度用户会以为卡死。
+     */
+    suspend fun publish(
+        product: NewProduct,
+        images: List<java.io.File> = emptyList(),
+        onProgress: (done: Int, total: Int) -> Unit = { _, _ -> }
+    ): Product
 
     /** 商品总数，桌面小组件与空态判断会用到。 */
     suspend fun countProducts(): Int
