@@ -64,6 +64,8 @@ android {
 }
 
 dependencies {
+    // 伴生模块 P1 桌面小组件（独立模块，随 App 一起打包）
+    implementation(project(":companion"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

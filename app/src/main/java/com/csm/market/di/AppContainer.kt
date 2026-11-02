@@ -48,6 +48,10 @@ class AppContainer(context: Context) {
 
     /** 留言只走网络：服务端是唯一真源，本地不留副本。 */
     val messageRepository: MessageRepository by lazy {
-        RemoteMessageRepository(ApiClient.create(BuildConfig.API_BASE_URL))
+        RemoteMessageRepository(
+            api = ApiClient.create(BuildConfig.API_BASE_URL),
+            // 顺手把未读数写进 SharedPreferences，桌面小组件读这份缓存，不自己发网络请求
+            appContext = appContext
+        )
     }
 }

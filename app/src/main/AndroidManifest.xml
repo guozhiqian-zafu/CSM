@@ -24,6 +24,27 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- 伴生模块（桌面小组件）通过这条深链拉起 App，避免跨模块直接引用 Activity 类 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:host="widget"
+                    android:scheme="csm" />
+            </intent-filter>
         </activity>
+
+        <!--
+          伴生模块 P1 的只读数据出口。
+          exported=true 让小组件以「另一个组件」的身份按契约查询；
+          不设读权限：只暴露计数与最新商品标题，不含隐私数据；
+          insert/update/delete 全部抛异常，保证只有一个方向的数据流。
+        -->
+        <provider
+            android:name=".widget.WidgetSummaryProvider"
+            android:authorities="com.csm.market.widget"
+            android:exported="true"
+            android:grantUriPermissions="true" />
     </application>
 </manifest>

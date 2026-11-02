@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
+import com.csm.market.companion.MarketWidgetProvider
 import com.csm.market.databinding.ActivityMainBinding
 
 /**
@@ -34,6 +35,12 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener { _, destination, _ ->
             binding.bottomNav.isVisible = destination.id in TOP_LEVEL_DESTINATIONS
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 回到前台时顺手刷新桌面小组件：数据可能已经因为发布/收藏而变化
+        MarketWidgetProvider.requestUpdate(this)
     }
 
     private companion object {

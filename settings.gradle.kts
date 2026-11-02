@@ -24,3 +24,5 @@ rootProject.name = "CSM"
 include(":app")
 // 自建轻量后端（Ktor + SQLite）：与 App 同仓库，方便演示「真实接口」与「云存储」
 include(":server")
+// 伴生模块 P1：桌面小组件（独立 Gradle 模块，通过 ContentProvider 读主 App 数据）
+include(":companion")

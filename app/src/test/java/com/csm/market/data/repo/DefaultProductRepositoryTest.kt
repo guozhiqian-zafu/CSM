@@ -159,6 +159,9 @@ class DefaultProductRepositoryTest {
 
         override suspend fun count(): Int = state.value.size
 
+        override suspend fun latest(): ProductEntity? =
+            state.value.maxByOrNull { it.publishedAt }
+
         override suspend fun upsertAll(items: List<ProductEntity>) {
             val incomingIds = items.map { it.id }.toSet()
             state.value = state.value.filterNot { it.id in incomingIds } + items

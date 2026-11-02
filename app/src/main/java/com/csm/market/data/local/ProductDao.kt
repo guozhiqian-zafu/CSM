@@ -29,6 +29,10 @@ interface ProductDao {
     @Query("SELECT COUNT(*) FROM products")
     suspend fun count(): Int
 
+    /** 最新发布的一条，给桌面小组件的「最新上架」用。 */
+    @Query("SELECT * FROM products ORDER BY publishedAt DESC LIMIT 1")
+    suspend fun latest(): ProductEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertAll(items: List<ProductEntity>)
 

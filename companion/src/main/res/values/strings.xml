@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_name">校园集市 · 我的摊位</string>
+    <string name="widget_title">校园集市</string>
+    <string name="widget_refresh">刷新小组件</string>
+    <string name="widget_counts">在售 %1$d · 收藏 %2$d · 未读 %3$d</string>
+    <string name="widget_counts_placeholder">在售 – · 收藏 – · 未读 –</string>
+    <string name="widget_latest">最新：%1$s ¥%2$.0f</string>
+    <string name="widget_latest_none">还没有发布过商品</string>
+    <string name="widget_updated">更新于 %1$s</string>
+    <string name="widget_empty_hint">打开校园集市看看今天有什么</string>
+    <string name="widget_empty_latest">下拉刷新，或点开 App 再回来</string>
+    <string name="widget_description">在主屏查看在售、收藏与未读数</string>
+</resources>
