@@ -27,6 +27,9 @@
     <color name="warning">#FFF29500</color>
     <color name="success">#FF2E9E5B</color>
 
+    <!-- 离线横幅：浅琥珀底，比警告色淡一档，避免像严重错误 -->
+    <color name="bg_offline_banner">#FFFFF4E0</color>
+
     <!-- 骨架屏（加载占位） -->
     <color name="bg_skeleton">#FFE9E9EE</color>
     <color name="bg_skeleton_strong">#FFDCDCE4</color>

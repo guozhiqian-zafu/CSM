@@ -40,6 +40,8 @@
     <string name="home_empty_desc">换个分类看看，或者发布你的第一件闲置</string>
     <string name="home_empty_filtered_title">这个分类还没有商品</string>
     <string name="home_empty_filtered_desc">先看看其他分类，或者你来发布第一件</string>
+    <!-- 离线横幅：不打断浏览，只提示「看到的是缓存」 -->
+    <string name="home_offline_banner">离线模式：当前展示本地缓存，联网后会自动更新</string>
 
     <!-- 详情 -->
     <string name="detail_title">商品详情</string>

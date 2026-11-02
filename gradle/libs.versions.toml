@@ -57,7 +57,8 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 
 # --- 客户端网络（app 模块）---
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
-retrofit-kotlinx-serialization = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
+# Retrofit 2.11 起官方提供 kotlinx.serialization 转换器，不再需要 JakeWharton 的第三方实现
+retrofit-kotlinx-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 

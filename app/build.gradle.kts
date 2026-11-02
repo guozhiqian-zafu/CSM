@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
 
@@ -16,10 +17,15 @@ android {
         versionName = "0.1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // 后端地址：模拟器访问宿主机的固定别名是 10.0.2.2（MuMu、AVD 都适用）。
+        // 真机联调时改成电脑的局域网 IP，例如 http://192.168.1.5:8080/
+        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     // 默认的 debug keystore 放在 ~/.android 下，某些受限环境（用户目录只读）无法创建，
@@ -78,6 +84,13 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // 网络：Retrofit + OkHttp + kotlinx.serialization，与服务端共用一套 JSON 字段名
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.kotlinx.serialization)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+    implementation(libs.kotlinx.serialization.json)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

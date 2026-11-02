@@ -16,4 +16,7 @@
     <!-- 骨架屏在深色下要更暗，否则会变成一块刺眼的亮灰 -->
     <color name="bg_skeleton">#FF26262E</color>
     <color name="bg_skeleton_strong">#FF32323C</color>
+
+    <!-- 深色下的离线横幅：暗琥珀，保证文字对比度 ≥ 4.5:1 -->
+    <color name="bg_offline_banner">#FF3A2F1F</color>
 </resources>

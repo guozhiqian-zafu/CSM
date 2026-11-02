@@ -39,6 +39,14 @@ class HomeViewModel(
     private val _state = MutableStateFlow<UiState<List<Product>>>(UiState.Loading)
     val state: StateFlow<UiState<List<Product>>> = _state.asStateFlow()
 
+    /**
+     * 离线状态直接转发仓库的 Flow。
+     *
+     * 不在这里再存一份 Boolean：仓库是唯一的判定方（它才知道这次请求到底成功没），
+     * ViewModel 只做转发，避免两处状态不同步。
+     */
+    val isOffline: StateFlow<Boolean> = repository.isOffline
+
     /** 只保留最后一次订阅，切分类时取消上一条，避免旧结果覆盖新结果。 */
     private var loadJob: Job? = null
 

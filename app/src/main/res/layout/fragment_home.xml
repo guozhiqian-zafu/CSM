@@ -2,6 +2,7 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_page">
@@ -19,6 +20,20 @@
             app:menu="@menu/menu_home"
             app:title="@string/app_name"
             app:titleTextAppearance="@style/TextAppearance.CSM.Title" />
+
+        <!-- 离线横幅：网络失败但本地有缓存时才出现，不遮挡内容也不弹窗打断浏览 -->
+        <TextView
+            android:id="@+id/tv_offline_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bg_offline_banner"
+            android:paddingHorizontal="@dimen/spacing_m"
+            android:paddingVertical="@dimen/spacing_s"
+            android:text="@string/home_offline_banner"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:visibility="gone"
+            tools:visibility="visible" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"

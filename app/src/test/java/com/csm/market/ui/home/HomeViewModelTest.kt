@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -133,6 +134,9 @@ class HomeViewModelTest {
     ) : ProductRepository {
 
         private val source = MutableStateFlow(products)
+
+        /** 假仓库始终「在线」，离线横幅不出现在这些用例里。 */
+        override val isOffline: StateFlow<Boolean> = MutableStateFlow(false)
 
         override fun observeProducts(category: ProductCategory?): Flow<List<Product>> = flow {
             failure?.let { throw it }

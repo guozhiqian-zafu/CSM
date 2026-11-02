@@ -16,7 +16,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  */
 @Database(
     entities = [ProductEntity::class, FavoriteEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class CsmDatabase : RoomDatabase() {
@@ -49,6 +49,20 @@ abstract class CsmDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v2 → v3：接入网络数据源，清掉之前灌进去的本地样例商品。
+         *
+         * v1/v2 时代列表来自 `SampleData`（id 形如 `p1001`），这些 id 在服务端并不存在。
+         * 如果不清理，服务端数据拉回来会和样例混在一起：同一件商品出现两次、
+         * 详情页点样例条目又查不到。收藏表不动——收藏的是「商品 id」，
+         * join 不到时收藏页自然显示为空，不会崩溃。
+         */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DELETE FROM products")
+            }
+        }
+
         @Volatile
         private var instance: CsmDatabase? = null
 
@@ -59,7 +73,7 @@ abstract class CsmDatabase : RoomDatabase() {
                     CsmDatabase::class.java,
                     DB_NAME
                 )
-                    .addMigrations(MIGRATION_1_2)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
                     .build()
                     .also { instance = it }
             }

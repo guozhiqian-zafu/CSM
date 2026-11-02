@@ -83,6 +83,14 @@ class HomeFragment : Fragment() {
                 viewModel.state.collect { state -> renderState(state) }
             }
         }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isOffline.collect { offline ->
+                    binding.tvOfflineBanner.isVisible = offline
+                }
+            }
+        }
     }
 
     private fun setupCategoryChips() {

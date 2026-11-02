@@ -37,4 +37,13 @@ interface ProductDao {
 
     @Query("DELETE FROM products WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    /**
+     * 删掉不在 [keepIds] 里的商品：服务端把商品下架后，本地缓存也要跟着消失。
+     *
+     * 注意调用方必须保证 [keepIds] 非空——SQLite 的 `NOT IN ()` 是语法错误，
+     * 而「服务端返回空列表」多半是异常情况，此时宁可不清理也不要把缓存删光。
+     */
+    @Query("DELETE FROM products WHERE id NOT IN (:keepIds)")
+    suspend fun deleteMissing(keepIds: List<String>)
 }
