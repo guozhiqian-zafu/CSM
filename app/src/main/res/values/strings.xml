@@ -80,6 +80,19 @@
     <string name="publish_submitting">正在发布…</string>
     <string name="publish_uploading">上传图片 %1$d/%2$d…</string>
     <string name="publish_pricing_hint_coming_soon">智能定价助手正在接入中</string>
+    <!-- 智能定价助手 -->
+    <string name="publish_pricing_hint_loading">正在取同类目成交价…</string>
+    <string name="publish_price_hint_empty">参考价 %1$s（%2$s–%3$s）· 点此查看依据</string>
+    <string name="publish_price_hint_scored">定价评分 %1$d 分 · 参考价 %2$s（%3$s–%4$s）</string>
+    <string name="pricing_dialog_title">定价助手</string>
+    <string name="pricing_dialog_suggested">建议售价：%1$s</string>
+    <string name="pricing_dialog_range">合理区间：%1$s – %2$s</string>
+    <string name="pricing_dialog_score">合理性评分：%1$d 分（70 分以上比较好出手）</string>
+    <string name="pricing_dialog_median">同类目成交价中位数：%1$s</string>
+    <string name="pricing_dialog_samples">参考了 %1$d 件同类商品</string>
+    <string name="pricing_dialog_samples_few">只有 %1$d 件同类商品做参考，结论仅供参考</string>
+    <string name="pricing_dialog_bargain">这个价格已经低于参考价三成，买家会当作「捡漏」。</string>
+    <string name="pricing_dialog_ok">知道了</string>
     <string name="publish_error_title">请填写商品标题</string>
     <string name="publish_error_price">请输入有效的价格</string>
     <string name="publish_photo_coming_soon">拍照 / 相册功能将在后续提交中接入</string>

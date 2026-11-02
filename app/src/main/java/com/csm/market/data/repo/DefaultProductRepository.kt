@@ -3,11 +3,13 @@ package com.csm.market.data.repo
 import com.csm.market.data.local.ProductDao
 import com.csm.market.data.local.toDomain
 import com.csm.market.data.local.toEntity
+import com.csm.market.data.model.PriceStats
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductQuery
 import com.csm.market.data.remote.ProductRemoteDataSource
 import com.csm.market.data.remote.dto.CreateProductRequest
+import com.csm.market.data.remote.dto.toDomain
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -120,6 +122,18 @@ class DefaultProductRepository(
         dao.upsert(created.toEntity(clock()))
         _isOffline.value = false
         return created
+    }
+
+    override suspend fun priceStats(category: ProductCategory?): PriceStats? {
+        val resolved = category ?: return null
+        return try {
+            val dto = remote.fetchPriceStats(resolved)
+            dto.toDomain(resolved)
+        } catch (error: Throwable) {
+            error.rethrowIfCancellation()
+            // 统计失败不该影响发布：返回 null，调用方用分类基准价兜底
+            null
+        }
     }
 
     private suspend fun refreshCache(category: ProductCategory?) = refreshMutex.withLock {

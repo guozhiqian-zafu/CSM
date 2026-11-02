@@ -8,15 +8,18 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.csm.market.CsmApp
+import com.csm.market.data.model.PriceStats
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductCondition
 import com.csm.market.data.repo.NewProduct
 import com.csm.market.data.repo.ProductRepository
 import com.csm.market.util.ImageCompressor
+import com.csm.market.util.PricingAdvisor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -49,6 +52,10 @@ class PublishViewModel(
         val submitting: Boolean = false,
         val uploadedCount: Int = 0,
         val uploadTotal: Int = 0,
+        /** 卖家填的售价文本（保留原始输入，解析交给 [PricingAdvisor]）。 */
+        val priceText: String = "",
+        /** 当前价格对应的定价建议；未填价格或还没拿到统计时也有兜底建议。 */
+        val advice: PricingAdvisor.PricingAdvice? = null,
         val errors: Map<Field, String> = emptyMap(),
         val message: String? = null,
         /** 发布成功后的商品 id，UI 收到后跳回首页并清空表单。 */
@@ -60,9 +67,61 @@ class PublishViewModel(
     private val _state = MutableStateFlow(UiState())
     val state: StateFlow<UiState> = _state.asStateFlow()
 
-    fun selectCategory(category: ProductCategory) = _state.update { it.copy(category = category) }
+    /** 当前分类的价格统计；请求失败时为 null，定价建议会退化到分类基准价。 */
+    private var stats: PriceStats? = null
+    private var statsJob: Job? = null
 
-    fun selectCondition(condition: ProductCondition) = _state.update { it.copy(condition = condition) }
+    init {
+        refreshAdvice()
+        loadStats(_state.value.category)
+    }
+
+    fun selectCategory(category: ProductCategory) {
+        if (_state.value.category == category) return
+        _state.update { it.copy(category = category) }
+        refreshAdvice()
+        loadStats(category)
+    }
+
+    fun selectCondition(condition: ProductCondition) {
+        if (_state.value.condition == condition) return
+        _state.update { it.copy(condition = condition) }
+        refreshAdvice()
+    }
+
+    /** 售价输入变化：只更新文本与建议，不触发任何网络请求。 */
+    fun onPriceChange(text: String) {
+        _state.update { it.copy(priceText = text) }
+        refreshAdvice()
+    }
+
+    /**
+     * 按当前价格、成色、分类重算建议。
+     *
+     * 用 StateFlow.update 而不是另起一个 flow：价格与成色是同一个 UI 状态的两部分，
+     * 合成一条流反而要在 collect 里解包，读起来更绕。
+     */
+    private fun refreshAdvice() {
+        _state.update { state ->
+            state.copy(
+                advice = PricingAdvisor.advise(
+                    listedPrice = state.priceText.toDoubleOrNull(),
+                    stats = stats,
+                    category = state.category,
+                    condition = state.condition
+                )
+            )
+        }
+    }
+
+    /** 拉取分类统计；失败静默降级，绝不打断发布流程。 */
+    private fun loadStats(category: ProductCategory) {
+        statsJob?.cancel()
+        statsJob = viewModelScope.launch {
+            stats = repository.priceStats(category)
+            refreshAdvice()
+        }
+    }
 
     /**
      * 接收相册 Uri：先压缩再放进列表。

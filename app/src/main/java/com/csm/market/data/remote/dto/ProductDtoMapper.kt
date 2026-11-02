@@ -2,6 +2,7 @@ package com.csm.market.data.remote.dto
 
 import com.csm.market.BuildConfig
 import com.csm.market.R
+import com.csm.market.data.model.PriceStats
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductCondition
@@ -81,3 +82,16 @@ internal fun fallbackCover(id: String): Int {
 }
 
 private val Int.absoluteValue: Int get() = if (this == Int.MIN_VALUE) 0 else if (this < 0) -this else this
+/**
+ * 价格统计 DTO → 领域模型。
+ *
+ * 服务端偶尔会给出样本为 0 的统计（新分类刚上线时），这种情况保留原值，
+ * 由 [com.csm.market.util.PricingAdvisor] 决定要不要退化到分类基准价。
+ */
+fun PriceStatsDto.toDomain(category: ProductCategory): PriceStats = PriceStats(
+    category = category,
+    median = median,
+    p25 = p25,
+    p75 = p75,
+    sampleCount = sampleCount
+)

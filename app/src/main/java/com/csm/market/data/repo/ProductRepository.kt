@@ -52,4 +52,13 @@ interface ProductRepository {
 
     /** 商品总数，桌面小组件与空态判断会用到。 */
     suspend fun countProducts(): Int
+
+    /**
+     * 取某个分类的价格统计，用于发布页的智能定价提示。
+     *
+     * 返回 null 表示「这次拿不到统计」（断网、服务端没这个分类），
+     * 调用方应当退回到分类经验基准价继续给建议——定价提示是锦上添花，
+     * 不能因为它失败就挡住发布流程。
+     */
+    suspend fun priceStats(category: ProductCategory?): com.csm.market.data.model.PriceStats?
 }

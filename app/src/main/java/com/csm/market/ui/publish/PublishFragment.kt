@@ -11,6 +11,7 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -22,6 +23,8 @@ import com.csm.market.R
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductCondition
 import com.csm.market.databinding.FragmentPublishBinding
+import com.csm.market.util.PricingAdvisor
+import com.csm.market.util.formatPrice
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
@@ -75,8 +78,11 @@ class PublishFragment : Fragment() {
                 location = ""
             )
         }
+        binding.etPrice.doAfterTextChanged { text ->
+            viewModel.onPriceChange(text?.toString().orEmpty())
+        }
         binding.tvPricingHint.setOnClickListener {
-            toast(getString(R.string.publish_pricing_hint_coming_soon))
+            showPricingDialog(_lastAdvice)
         }
 
         setupCategoryChips()
@@ -156,6 +162,7 @@ class PublishFragment : Fragment() {
             )
         )
 
+        renderPricing(state.advice)
         renderPhotos(state)
 
         state.message?.let { message ->
@@ -168,6 +175,66 @@ class PublishFragment : Fragment() {
             // 发布成功后回首页：用户能看到自己刚发的商品排在第一条
             findNavController().navigate(R.id.homeFragment)
         }
+    }
+
+    /** 最近一次定价建议，点提示文字时用来弹窗（避免再从 state 里取一次）。 */
+    private var _lastAdvice: PricingAdvisor.PricingAdvice? = null
+
+    /**
+     * 定价提示条：没填价格时给参考价，填了价格后追加合理性评分。
+     *
+     * 颜色跟着评分走（>=70 绿、中间橙、太低红），但**从不阻止提交**——
+     * 定价助手是建议，不是规则，卖家急出低价也完全合理。
+     */
+    private fun renderPricing(advice: PricingAdvisor.PricingAdvice?) {
+        _lastAdvice = advice
+        if (advice == null) {
+            binding.tvPricingHint.text = getString(R.string.publish_pricing_hint_loading)
+            return
+        }
+        val low = formatPrice(advice.low)
+        val high = formatPrice(advice.high)
+        val suggested = formatPrice(advice.suggestedPrice)
+        binding.tvPricingHint.text = when {
+            advice.score != null -> getString(R.string.publish_price_hint_scored, advice.score, suggested, low, high)
+            else -> getString(R.string.publish_price_hint_empty, suggested, low, high)
+        }
+        val colorRes = when {
+            advice.score == null -> R.color.brand_primary
+            advice.score >= 70 -> R.color.success
+            advice.score >= 40 -> R.color.warning
+            else -> R.color.price_red
+        }
+        binding.tvPricingHint.setTextColor(
+            androidx.core.content.ContextCompat.getColor(requireContext(), colorRes)
+        )
+    }
+
+    /** 定价依据弹窗：把中位数、区间、成色系数、样本量摊开给用户看，而不是只给一个数字。 */
+    private fun showPricingDialog(advice: PricingAdvisor.PricingAdvice?) {
+        if (advice == null) {
+            toast(getString(R.string.publish_pricing_hint_loading))
+            return
+        }
+        val body = buildString {
+            appendLine(getString(R.string.pricing_dialog_suggested, formatPrice(advice.suggestedPrice)))
+            appendLine(getString(R.string.pricing_dialog_range, formatPrice(advice.low), formatPrice(advice.high)))
+            advice.score?.let { appendLine(getString(R.string.pricing_dialog_score, it)) }
+            advice.referenceMedian?.let { appendLine(getString(R.string.pricing_dialog_median, formatPrice(it))) }
+            appendLine(
+                if (advice.isReliable) {
+                    getString(R.string.pricing_dialog_samples, advice.sampleCount)
+                } else {
+                    getString(R.string.pricing_dialog_samples_few, advice.sampleCount)
+                }
+            )
+            if (advice.isBargain) append(getString(R.string.pricing_dialog_bargain))
+        }
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.pricing_dialog_title)
+            .setMessage(body.trim())
+            .setPositiveButton(R.string.pricing_dialog_ok, null)
+            .show()
     }
 
     /** 缩略图列表整体重建：最多 4 张，重建成本可以忽略，比做局部增删更好维护。 */

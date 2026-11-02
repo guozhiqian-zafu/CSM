@@ -165,5 +165,8 @@ class HomeViewModelTest {
         ): Product = error("首页用例不会调用 publish")
 
         override suspend fun countProducts(): Int = source.value.size
+
+        /** 首页用例不涉及定价，返回 null 让调用方走兜底分支即可。 */
+        override suspend fun priceStats(category: ProductCategory?) = null
     }
 }
