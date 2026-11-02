@@ -119,3 +119,11 @@ curl "http://127.0.0.1:18080/api/price-stats?category=DIGITAL"
 4. 发布一条商品：拍照/选图（自动压缩 + 去 GPS）→ 看智能定价提示 → 提交 → 首页出现；
 5. 回到桌面长按添加「校园集市 · 我的摊位」小组件，确认在售/收藏/未读数字与最新商品；
 6. 点小组件跳回 App；断网后重进首页看离线横幅与缓存降级。
+
+## 界面截图
+
+以下截图拍摄于 MuMu 模拟器（Android 12）真实运行环境，数据来自本仓库 `server/` 模块。
+
+| 首页（列表 + 分类筛选） | 商品详情 | 发布页（智能定价） |
+| --- | --- | --- |
+| ![首页](docs/screenshots/01-home.png) | ![详情](docs/screenshots/02-detail.png) | ![发布](docs/screenshots/03-publish-pricing.png) |
