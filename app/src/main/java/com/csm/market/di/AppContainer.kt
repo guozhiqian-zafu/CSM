@@ -9,6 +9,8 @@ import com.csm.market.data.remote.ProductRemoteDataSource
 import com.csm.market.data.repo.DefaultProductRepository
 import com.csm.market.data.repo.FavoriteRepository
 import com.csm.market.data.repo.LocalFavoriteRepository
+import com.csm.market.data.repo.MessageRepository
+import com.csm.market.data.repo.RemoteMessageRepository
 import com.csm.market.data.repo.ProductRepository
 
 /**
@@ -42,5 +44,10 @@ class AppContainer(context: Context) {
 
     val favoriteRepository: FavoriteRepository by lazy {
         LocalFavoriteRepository(database.favoriteDao())
+    }
+
+    /** 留言只走网络：服务端是唯一真源，本地不留副本。 */
+    val messageRepository: MessageRepository by lazy {
+        RemoteMessageRepository(ApiClient.create(BuildConfig.API_BASE_URL))
     }
 }

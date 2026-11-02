@@ -146,6 +146,61 @@ class ProductStore private constructor(private val connection: Connection) {
         ps.executeUpdate() > 0
     }
 
+    // ---- 留言 ----
+
+    @Synchronized
+    fun listMessages(productId: String): List<MessageDto> = connection.prepareStatement(
+        "SELECT * FROM messages WHERE product_id = ? ORDER BY created_at ASC"
+    ).use { ps ->
+        ps.setString(1, productId)
+        ps.executeQuery().use { rs ->
+            buildList { while (rs.next()) add(rs.toMessage()) }
+        }
+    }
+
+    /**
+     * 发一条留言。
+     *
+     * 返回 null 表示商品不存在或已下架：留言是挂在商品上的，商品没了两边都对不上。
+     * 当前没有账号体系，`sender_id` 固定写 `u-me`，靠请求里的 `senderName` 区分昵称。
+     */
+    @Synchronized
+    fun addMessage(
+        productId: String,
+        request: CreateMessageRequest,
+        now: OffsetDateTime = OffsetDateTime.now()
+    ): MessageDto? {
+        if (find(productId) == null) return null
+        return insertMessage(
+            productId = productId,
+            senderId = ME,
+            senderName = request.senderName.trim().ifEmpty { "我" },
+            content = request.content.trim(),
+            now = now
+        )
+    }
+
+    /**
+     * 未读数：桌面小组件与「我的」页角标都读这个值。
+     *
+     * 只算别人发来的：自己发出去的留言永远不算「未读」，否则角标会一直骗人。
+     */
+    @Synchronized
+    fun unreadCount(): Int = connection.prepareStatement(
+        "SELECT COUNT(*) FROM messages WHERE read = 0 AND sender_id <> ?"
+    ).use { ps ->
+        ps.setString(1, ME)
+        ps.executeQuery().use { rs -> if (rs.next()) rs.getInt(1) else 0 }
+    }
+
+    @Synchronized
+    fun markRead(id: String): Boolean = connection.prepareStatement(
+        "UPDATE messages SET read = 1 WHERE id = ?"
+    ).use { ps ->
+        ps.setString(1, id)
+        ps.executeUpdate() > 0
+    }
+
     @Synchronized
     fun priceStats(category: String?): PriceStatsDto {
         val sql = if (category.isNullOrBlank()) {
@@ -224,6 +279,49 @@ class ProductStore private constructor(private val connection: Connection) {
         0
     }
 
+    private fun insertMessage(
+        productId: String,
+        senderId: String,
+        senderName: String,
+        content: String,
+        now: OffsetDateTime
+    ): MessageDto {
+        val id = "m" + System.nanoTime()
+        connection.prepareStatement(
+            """
+            INSERT INTO messages(id, product_id, sender_id, sender_name, content, created_at, read)
+            VALUES (?, ?, ?, ?, ?, ?, 0)
+            """.trimIndent()
+        ).use { ps ->
+            ps.setString(1, id)
+            ps.setString(2, productId)
+            ps.setString(3, senderId)
+            ps.setString(4, senderName)
+            ps.setString(5, content)
+            ps.setString(6, now.toString())
+            ps.executeUpdate()
+        }
+        return MessageDto(
+            id = id,
+            productId = productId,
+            senderName = senderName,
+            content = content,
+            createdAt = now.toString(),
+            isMine = senderId == ME,
+            read = false
+        )
+    }
+
+    private fun java.sql.ResultSet.toMessage(): MessageDto = MessageDto(
+        id = getString("id"),
+        productId = getString("product_id"),
+        senderName = getString("sender_name"),
+        content = getString("content"),
+        createdAt = getString("created_at"),
+        isMine = getString("sender_id") == ME,
+        read = getInt("read") == 1
+    )
+
     private fun java.sql.ResultSet.toProduct(): ProductDto {
         val imagesRaw = getString("images").orEmpty()
         return ProductDto(
@@ -243,6 +341,9 @@ class ProductStore private constructor(private val connection: Connection) {
     }
 
     companion object {
+        /** 当前演示用的「我」；接入登录后换成真实用户 id。 */
+        private const val ME = "u-me"
+
         /**
          * 打开数据库（不存在则建表 + 灌样例数据）。
          * 默认落在 `server/data/csm.db`，可用 `-Dcsm.db=...` 覆盖，测试时可指向临时文件。
@@ -273,9 +374,23 @@ class ProductStore private constructor(private val connection: Connection) {
                     )
                     """.trimIndent()
                 )
+                statement.executeUpdate(
+                    """
+                    CREATE TABLE IF NOT EXISTS messages(
+                        id TEXT PRIMARY KEY,
+                        product_id TEXT NOT NULL,
+                        sender_id TEXT NOT NULL,
+                        sender_name TEXT NOT NULL,
+                        content TEXT NOT NULL,
+                        created_at TEXT NOT NULL,
+                        read INTEGER NOT NULL DEFAULT 0
+                    )
+                    """.trimIndent()
+                )
             }
             val store = ProductStore(connection)
             store.seedIfEmpty()
+            store.seedMessagesIfEmpty()
             return store
         }
 
@@ -297,6 +412,41 @@ class ProductStore private constructor(private val connection: Connection) {
             CreateProductRequest("Kindle Paperwhite 4", 150.0, 998.0, "DIGITAL", "GOOD", "屏幕无亮点，送原装保护套，急着搬宿舍所以低价出。", "北苑 5 号楼", "蒋同学"),
             CreateProductRequest("尤克里里 23 寸", 60.0, 399.0, "OTHER", "LIKE_NEW", "买来学过一阵，音准正常，送琴包和拨片。", "大学生活动中心", "沈同学")
         )
+    }
+
+    /**
+     * 样例留言：让「留言」入口一打开就有内容，录屏演示不必先自己发几条。
+     * 只在 messages 表为空时灌一次，真实使用中删掉也不会再回来。
+     */
+    private fun seedMessagesIfEmpty() {
+        val count = connection.createStatement().use { statement ->
+            statement.executeQuery("SELECT COUNT(*) FROM messages").use { rs ->
+                if (rs.next()) rs.getInt(1) else 0
+            }
+        }
+        if (count > 0) return
+        val products = connection.createStatement().use { statement ->
+            statement.executeQuery("SELECT id FROM products ORDER BY published_at DESC LIMIT 3").use { rs ->
+                buildList { while (rs.next()) add(rs.getString(1)) }
+            }
+        }
+        val now = OffsetDateTime.now()
+        products.forEachIndexed { index, productId ->
+            insertMessage(
+                productId = productId,
+                senderId = "u-lin",
+                senderName = "林同学",
+                content = "同学你好，这个还在吗？",
+                now = now.minusMinutes(30L + index)
+            )
+            insertMessage(
+                productId = productId,
+                senderId = ME,
+                senderName = "我",
+                content = "在的，可以约在图书馆门口看货。",
+                now = now.minusMinutes(25L + index)
+            )
+        }
     }
 
     private fun seedIfEmpty() {

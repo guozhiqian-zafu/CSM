@@ -1,7 +1,9 @@
 package com.csm.market.data.remote
 
 import com.csm.market.data.remote.dto.ApiEnvelope
+import com.csm.market.data.remote.dto.CreateMessageRequest
 import com.csm.market.data.remote.dto.CreateProductRequest
+import com.csm.market.data.remote.dto.MessageDto
 import com.csm.market.data.remote.dto.PriceStatsDto
 import com.csm.market.data.remote.dto.ProductDto
 import com.csm.market.data.remote.dto.ProductPageDto
@@ -47,6 +49,23 @@ interface CsmApi {
 
     @DELETE("api/products/{id}")
     suspend fun deleteProduct(@Path("id") id: String): Response<ApiEnvelope<Map<String, String>>>
+
+    /** 某商品的留言，按时间正序。 */
+    @GET("api/products/{id}/messages")
+    suspend fun listMessages(
+        @Path("id") productId: String
+    ): Response<ApiEnvelope<List<MessageDto>>>
+
+    /** 发一条留言。 */
+    @POST("api/products/{id}/messages")
+    suspend fun postMessage(
+        @Path("id") productId: String,
+        @Body request: CreateMessageRequest
+    ): Response<ApiEnvelope<MessageDto>>
+
+    /** 未读留言数。 */
+    @GET("api/messages/unread-count")
+    suspend fun unreadCount(): Response<ApiEnvelope<Map<String, Int>>>
 
     @GET("api/price-stats")
     suspend fun priceStats(@Query("category") category: String? = null): Response<ApiEnvelope<PriceStatsDto>>

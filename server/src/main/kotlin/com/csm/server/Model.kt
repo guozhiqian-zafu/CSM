@@ -142,3 +142,21 @@ fun percentile(values: List<Double>, p: Double): Double {
     val index = ((sorted.size - 1) * p).toInt()
     return round2(sorted[index])
 }
+
+@Serializable
+data class MessageDto(
+    val id: String,
+    val productId: String,
+    val senderName: String,
+    val content: String,
+    val createdAt: String,
+    /** 自己发的消息靠右显示，服务端负责标记，避免客户端按名字猜。 */
+    val isMine: Boolean = false,
+    val read: Boolean = false
+)
+
+@Serializable
+data class CreateMessageRequest(
+    val content: String,
+    val senderName: String = "我"
+)

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -54,7 +55,17 @@ class DetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
         binding.btnFavorite.setOnClickListener { viewModel.toggleFavorite() }
-        binding.btnMessage.setOnClickListener { toast(R.string.feature_coming_soon) }
+        binding.btnMessage.setOnClickListener {
+            val current = (viewModel.state.value as? UiState.Success)?.data
+            if (current == null) {
+                toast(R.string.feature_coming_soon)
+                return@setOnClickListener
+            }
+            findNavController().navigate(
+                R.id.action_detail_to_messages,
+                bundleOf("productId" to current.id, "productTitle" to current.title)
+            )
+        }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

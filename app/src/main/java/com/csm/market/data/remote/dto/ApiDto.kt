@@ -91,3 +91,20 @@ data class PriceStatsDto(
     val sampleCount: Int = 0,
     val updatedAt: String = ""
 )
+
+@Serializable
+data class MessageDto(
+    val id: String = "",
+    val productId: String = "",
+    val senderName: String = "",
+    val content: String = "",
+    val createdAt: String = "",
+    val isMine: Boolean = false,
+    val read: Boolean = false
+)
+
+@Serializable
+data class CreateMessageRequest(
+    val content: String,
+    val senderName: String = "我"
+)

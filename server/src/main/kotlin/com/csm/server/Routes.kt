@@ -115,6 +115,58 @@ fun Application.registerProductRoutes(store: ProductStore) {
                 call.respond(HttpStatusCode.Created, envelope(data = created))
             }
 
+            // GET /api/products/{id}/messages：按时间正序，聊天式排列
+            get("/{id}/messages") {
+                val id = call.parameters["id"].orEmpty()
+                if (store.find(id) == null) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        envelope<Unit>(ErrorCode.NOT_FOUND, "商品不存在或已下架")
+                    )
+                    return@get
+                }
+                call.respond(envelope(data = store.listMessages(id)))
+            }
+
+            // POST /api/products/{id}/messages
+            post("/{id}/messages") {
+                val id = call.parameters["id"].orEmpty()
+                val request = try {
+                    call.receive<CreateMessageRequest>()
+                } catch (e: Exception) {
+                    val missing = e.findMissingFields()
+                    val message = if (missing != null) "缺少必填字段：$missing" else "请求体不是合法的留言 JSON"
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        envelope<Unit>(ErrorCode.PARAM, message)
+                    )
+                    return@post
+                }
+                val content = request.content.trim()
+                val invalid = when {
+                    content.isEmpty() -> "留言内容不能为空"
+                    content.length > 300 -> "留言不能超过 300 个字"
+                    request.senderName.length > 20 -> "昵称不能超过 20 个字"
+                    else -> null
+                }
+                if (invalid != null) {
+                    call.respond(
+                        HttpStatusCode.BadRequest,
+                        envelope<Unit>(ErrorCode.PARAM, invalid)
+                    )
+                    return@post
+                }
+                val created = store.addMessage(id, request.copy(content = content))
+                if (created == null) {
+                    call.respond(
+                        HttpStatusCode.NotFound,
+                        envelope<Unit>(ErrorCode.NOT_FOUND, "商品不存在或已下架")
+                    )
+                } else {
+                    call.respond(HttpStatusCode.Created, envelope(data = created))
+                }
+            }
+
             // DELETE /api/products/{id}：软删除（下架）
             delete("/{id}") {
                 val id = call.parameters["id"].orEmpty()
@@ -126,6 +178,24 @@ fun Application.registerProductRoutes(store: ProductStore) {
                         envelope<Unit>(ErrorCode.NOT_FOUND, "商品不存在或已下架")
                     )
                 }
+            }
+        }
+
+        // GET /api/messages/unread-count：未读数，桌面小组件与「我的」角标都用它
+        get("/api/messages/unread-count") {
+            call.respond(envelope(data = mapOf("count" to store.unreadCount())))
+        }
+
+        // POST /api/messages/{id}/read：标记单条已读
+        post("/api/messages/{id}/read") {
+            val id = call.parameters["id"].orEmpty()
+            if (store.markRead(id)) {
+                call.respond(envelope(data = mapOf("id" to id, "read" to true)))
+            } else {
+                call.respond(
+                    HttpStatusCode.NotFound,
+                    envelope<Unit>(ErrorCode.NOT_FOUND, "留言不存在")
+                )
             }
         }
 

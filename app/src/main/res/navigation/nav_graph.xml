@@ -37,6 +37,23 @@
             android:name="productId"
             app:argType="string"
             app:nullable="true" />
+        <action
+            android:id="@+id/action_detail_to_messages"
+            app:destination="@id/messagesFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/messagesFragment"
+        android:name="com.csm.market.ui.messages.MessageFragment"
+        android:label="@string/messages_title"
+        tools:layout="@layout/fragment_messages">
+        <argument
+            android:name="productId"
+            app:argType="string" />
+        <argument
+            android:name="productTitle"
+            app:argType="string"
+            app:nullable="true" />
     </fragment>
 
     <fragment
