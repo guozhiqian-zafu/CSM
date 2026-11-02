@@ -106,7 +106,7 @@ curl "http://127.0.0.1:18080/api/price-stats?category=DIGITAL"
 
 | 目录 | 说明 |
 | --- | --- |
-| `app/` | 主 App（2 学分）：列表/详情/发布/搜索/收藏/留言/我的 |
+| `app/` | 主 App（2 学分）：列表/详情/发布/搜索/收藏/留言/我的发布/我的 |
 | `companion/` | 伴生模块（1 学分）P1：桌面小组件，独立模块，经 `content://com.csm.market.widget/summary` 读主 App 数据 |
 | `server/` | 自建轻量后端（Ktor + SQLite + 本地文件存储），提供商品/定价/上传/留言接口 |
 | `docs/` | 需求、功能清单、系统设计、接口、测试记录、伴生模块设计 |
@@ -117,13 +117,14 @@ curl "http://127.0.0.1:18080/api/price-stats?category=DIGITAL"
 2. 模拟器里打开校园集市：首页三态 → 分类筛选 → 搜索「iPad」→ 排序；
 3. 详情页收藏、留言；返回「收藏」页确认同步；
 4. 发布一条商品：拍照/选图（自动压缩 + 去 GPS）→ 看智能定价提示 → 提交 → 首页出现；
-5. 回到桌面长按添加「校园集市 · 我的摊位」小组件，确认在售/收藏/未读数字与最新商品；
-6. 点小组件跳回 App；断网后重进首页看离线横幅与缓存降级。
+5. 「我的」→「我发布的」→ 长按一条已发布商品下架，确认首页同步消失；
+6. 回到桌面长按添加「校园集市 · 我的摊位」小组件，确认在售/收藏/未读数字与最新商品；
+7. 点小组件跳回 App；断网后重进首页看离线横幅与缓存降级。
 
 ## 界面截图
 
 以下截图拍摄于 MuMu 模拟器（Android 12）真实运行环境，数据来自本仓库 `server/` 模块。
 
-| 首页（列表 + 分类筛选） | 商品详情 | 发布页（智能定价） |
-| --- | --- | --- |
-| ![首页](docs/screenshots/01-home.png) | ![详情](docs/screenshots/02-detail.png) | ![发布](docs/screenshots/03-publish-pricing.png) |
+| 首页（列表 + 分类筛选） | 商品详情 | 发布页（智能定价） | 我的发布（长按下架） |
+| --- | --- | --- | --- |
+| ![首页](docs/screenshots/01-home.png) | ![详情](docs/screenshots/02-detail.png) | ![发布](docs/screenshots/03-publish-pricing.png) | ![我的发布](docs/screenshots/04-my-listings.png) |
