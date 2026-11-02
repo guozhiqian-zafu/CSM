@@ -66,7 +66,7 @@
     <!-- 发布 -->
     <string name="publish_title">发布闲置</string>
     <string name="publish_photo_hint">添加图片</string>
-    <string name="publish_photo_sub">最多 9 张，支持拍照或相册</string>
+    <string name="publish_photo_sub">最多 4 张，支持拍照或相册</string>
     <string name="publish_field_title">标题</string>
     <string name="publish_field_price">价格（元）</string>
     <string name="publish_field_description">描述</string>

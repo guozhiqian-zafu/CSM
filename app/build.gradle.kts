@@ -20,7 +20,11 @@ android {
 
         // 后端地址：模拟器访问宿主机的固定别名是 10.0.2.2（MuMu、AVD 都适用）。
         // 真机联调时改成电脑的局域网 IP，例如 http://192.168.1.5:8080/
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/\"")
+        // 本机 8080 被其他服务占用时，可以用 -PcsmApiBaseUrl=http://10.0.2.2:18080/ 临时改端口，
+        // 不必改代码：默认值仍然是文档里写的 8080。
+        val apiBaseUrl = (project.findProperty("csmApiBaseUrl") as String?)
+            ?: "http://10.0.2.2:8080/"
+        buildConfigField("String", "API_BASE_URL", "\"$apiBaseUrl\"")
     }
 
     buildFeatures {
