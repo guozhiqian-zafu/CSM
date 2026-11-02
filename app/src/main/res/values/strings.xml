@@ -117,4 +117,8 @@
     <string name="profile_my_messages">我的留言</string>
     <string name="profile_settings">设置</string>
     <string name="profile_version">版本 %1$s</string>
-</resources>
+    <!-- 附近好物（定位 + 权限降级） -->
+    <string name="home_nearby">附近</string>
+    <string name="nearby_need_permission">先允许定位，才能按距离排序</string>
+    <string name="nearby_denied">没有定位权限，已按最新发布排序</string>
+    <string name="nearby_unavailable">暂时拿不到你的位置，已按最新发布排序</string></resources>

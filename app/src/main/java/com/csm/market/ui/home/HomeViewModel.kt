@@ -6,11 +6,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.csm.market.CsmApp
+import com.csm.market.R
 import com.csm.market.core.error.CsmError
 import com.csm.market.core.ui.UiState
+import com.csm.market.data.model.CampusLocations
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.repo.ProductRepository
+import com.csm.market.util.GeoUtils
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,6 +53,53 @@ class HomeViewModel(
     /** 只保留最后一次订阅，切分类时取消上一条，避免旧结果覆盖新结果。 */
     private var loadJob: Job? = null
 
+    /** 是否开启了「附近好物」排序。 */
+    private val _nearbyEnabled = MutableStateFlow(false)
+    val nearbyEnabled: StateFlow<Boolean> = _nearbyEnabled.asStateFlow()
+
+    /** 当前定位；为 null 表示没权限/定位关闭，此时附近排序不可用。 */
+    private val _userLocation = MutableStateFlow<CampusLocations.LatLng?>(null)
+
+    /** 商品 id → 距离（米）。列表据此显示「距你 320 米」并按由近到远排序。 */
+    private val _distances = MutableStateFlow<Map<String, Double>>(emptyMap())
+    val distances: StateFlow<Map<String, Double>> = _distances.asStateFlow()
+
+    /** 一次性提示（定位不可用等），由 Fragment 弹一次就消费掉。 */
+    private val _message = MutableStateFlow<Int?>(null)
+    val message: StateFlow<Int?> = _message.asStateFlow()
+
+    fun consumeMessage() {
+        _message.value = null
+    }
+
+    /**
+     * 拿到（或拿不到）定位后调用。
+     *
+     * 拿不到时不仅仅是「显示远一点」，而是明确告诉用户附近排序用不了：
+     * 否则用户会以为系统按距离排了，其实只是原始顺序。
+     */
+    fun onLocationResolved(location: CampusLocations.LatLng?) {
+        _userLocation.value = location
+        if (location == null) {
+            _nearbyEnabled.value = false
+            _distances.value = emptyMap()
+            _message.value = R.string.nearby_unavailable
+        } else if (_nearbyEnabled.value) {
+            load(showSkeleton = false)
+        }
+    }
+
+    /** 开启/关闭附近排序；没有定位时直接拒绝并提示。 */
+    fun setNearbyEnabled(enabled: Boolean) {
+        if (enabled && _userLocation.value == null) {
+            _message.value = R.string.nearby_need_permission
+            return
+        }
+        if (_nearbyEnabled.value == enabled) return
+        _nearbyEnabled.value = enabled
+        load(showSkeleton = false)
+    }
+
     init {
         load(showSkeleton = true)
     }
@@ -76,10 +126,11 @@ class HomeViewModel(
                     _state.value = UiState.Error(CsmError.from(throwable))
                 }
                 .collect { products ->
-                    _state.value = if (products.isEmpty()) {
+                    val prepared = applyNearby(products)
+                    _state.value = if (prepared.isEmpty()) {
                         UiState.Empty
                     } else {
-                        UiState.Success(products)
+                        UiState.Success(prepared)
                     }
                 }
         }
@@ -87,6 +138,26 @@ class HomeViewModel(
 
     private fun observeProducts(category: ProductCategory?): Flow<List<Product>> =
         repository.observeProducts(category)
+
+    /**
+     * 附近排序：给每个商品算一次距离，按远近重排。
+     *
+     * 距离用「校园地点表 → 坐标 → Haversine」，解析不出地名的商品排到最后（distance 为 null）。
+     * 关闭附近排序时清空距离表，列表恢复成服务端给的顺序。
+     */
+    private fun applyNearby(products: List<Product>): List<Product> {
+        val origin = _userLocation.value
+        if (!_nearbyEnabled.value || origin == null) {
+            _distances.value = emptyMap()
+            return products
+        }
+        val computed = products.associate { product ->
+            product.id to (CampusLocations.resolve(product.location)
+                ?.let { GeoUtils.distanceMeters(origin, it) } ?: Double.MAX_VALUE)
+        }
+        _distances.value = computed.filterValues { it != Double.MAX_VALUE }
+        return products.sortedBy { computed[it.id] ?: Double.MAX_VALUE }
+    }
 
     companion object {
         /**

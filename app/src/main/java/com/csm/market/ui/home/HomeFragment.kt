@@ -1,10 +1,12 @@
 package com.csm.market.ui.home
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -24,8 +26,10 @@ import com.csm.market.ui.common.showEmpty
 import com.csm.market.ui.common.showError
 import com.csm.market.ui.common.startSkeletonPulse
 import com.csm.market.ui.common.stopSkeletonPulse
+import com.csm.market.util.LocationProvider
 import com.google.android.material.chip.Chip
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * 首页：商品列表 + 分类筛选。
@@ -45,6 +49,18 @@ class HomeFragment : Fragment() {
 
     private val adapter = ProductAdapter { product -> openDetail(product) }
 
+    /** 系统权限弹窗的回调：同意就取定位，拒绝就只提示、保持默认排序。 */
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            loadLocationAndEnable()
+        } else {
+            toast(getString(R.string.nearby_denied))
+            binding.toolbar.menu.findItem(R.id.action_nearby)?.isChecked = false
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -61,6 +77,11 @@ class HomeFragment : Fragment() {
             when (item.itemId) {
                 R.id.action_search -> {
                     findNavController().navigate(R.id.action_home_to_search)
+                    true
+                }
+
+                R.id.action_nearby -> {
+                    toggleNearby(item)
                     true
                 }
                 else -> false
@@ -90,6 +111,62 @@ class HomeFragment : Fragment() {
                     binding.tvOfflineBanner.isVisible = offline
                 }
             }
+        }
+
+        // 距离变化时只刷新条目文案，不重新提交列表（列表本身没变，位置变了）
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.distances.collect { distances ->
+                    adapter.distances = distances
+                    adapter.notifyItemRangeChanged(0, adapter.itemCount)
+                }
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.message.collect { resId ->
+                    resId ?: return@collect
+                    toast(getString(resId))
+                    viewModel.consumeMessage()
+                }
+            }
+        }
+    }
+
+    /**
+     * 切换「附近好物」。
+     *
+     * 权限流程按课程要求做成可降级：
+     * 已授权 → 取一次定位并开启排序；
+     * 未授权 → 请求权限，用户同意后开启；
+     * 拒绝 → 提示「定位不可用，已按最新发布排序」，列表照常显示，什么都不崩。
+     */
+    private fun toggleNearby(item: MenuItem) {
+        if (viewModel.nearbyEnabled.value) {
+            item.isChecked = false
+            viewModel.setNearbyEnabled(false)
+            return
+        }
+        if (LocationProvider.hasPermission(requireContext())) {
+            loadLocationAndEnable()
+        } else {
+            permissionLauncher.launch(LocationProvider.PERMISSION)
+        }
+    }
+
+    private fun loadLocationAndEnable() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            // 定位超时也要能退出来，不能让用户对着空白列表等
+            val location = withTimeoutOrNull(LOCATION_TIMEOUT_MS) {
+                LocationProvider.lastKnownLocation(requireContext())
+            }
+            viewModel.onLocationResolved(location)
+            if (location != null) {
+                viewModel.setNearbyEnabled(true)
+            }
+            binding.toolbar.menu.findItem(R.id.action_nearby)?.isChecked =
+                viewModel.nearbyEnabled.value
         }
     }
 
@@ -184,5 +261,10 @@ class HomeFragment : Fragment() {
         binding.rvProducts.adapter = null
         _binding = null
         super.onDestroyView()
+    }
+
+    private companion object {
+        /** 定位最多等 3 秒：室内常常拿不到，等太久用户会以为卡死。 */
+        const val LOCATION_TIMEOUT_MS = 3_000L
     }
 }

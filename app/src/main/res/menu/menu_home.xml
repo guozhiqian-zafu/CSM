@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!-- 附近好物：切换后按「离我最近」排序，需要定位权限 -->
+    <item
+        android:id="@+id/action_nearby"
+        android:checkable="true"
+        android:icon="@drawable/ic_location"
+        android:title="@string/home_nearby"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search"
