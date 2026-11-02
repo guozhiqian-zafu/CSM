@@ -12,4 +12,8 @@
 
     <color name="brand_primary_container">#FF5A2A1C</color>
     <color name="brand_on_primary_container">#FFFFDBCE</color>
+
+    <!-- 骨架屏在深色下要更暗，否则会变成一块刺眼的亮灰 -->
+    <color name="bg_skeleton">#FF26262E</color>
+    <color name="bg_skeleton_strong">#FF32323C</color>
 </resources>

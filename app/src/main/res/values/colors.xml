@@ -27,6 +27,10 @@
     <color name="warning">#FFF29500</color>
     <color name="success">#FF2E9E5B</color>
 
+    <!-- 骨架屏（加载占位） -->
+    <color name="bg_skeleton">#FFE9E9EE</color>
+    <color name="bg_skeleton_strong">#FFDCDCE4</color>
+
     <!-- 商品占位图渐变（后续接入真实图片后仅作为加载占位） -->
     <color name="photo_1_start">#FFFFCC80</color>
     <color name="photo_1_end">#FFFF8A65</color>

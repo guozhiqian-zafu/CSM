@@ -51,38 +51,47 @@
                 android:padding="@dimen/spacing_m"
                 android:scrollbars="vertical" />
 
+            <!-- 加载态：骨架屏，形状与真实卡片一致，避免内容到位时整页跳动 -->
             <LinearLayout
-                android:id="@+id/empty_state"
+                android:id="@+id/skeleton_group"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="@dimen/spacing_l"
+                android:padding="@dimen/spacing_m"
                 android:visibility="gone">
 
-                <ImageView
-                    android:layout_width="96dp"
-                    android:layout_height="96dp"
-                    android:contentDescription="@string/cd_empty"
-                    android:src="@drawable/ic_empty_box"
-                    app:tint="@color/text_tertiary" />
+                <include
+                    layout="@layout/view_product_skeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_m"
-                    android:text="@string/home_empty_title"
-                    android:textAppearance="@style/TextAppearance.CSM.Title" />
+                <include
+                    layout="@layout/view_product_skeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_xs"
-                    android:gravity="center"
-                    android:text="@string/home_empty_desc"
-                    android:textAppearance="@style/TextAppearance.CSM.Body" />
+                <include
+                    layout="@layout/view_product_skeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    layout="@layout/view_product_skeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <include
+                    layout="@layout/view_product_skeleton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
             </LinearLayout>
+
+            <!-- 空态 / 错误态 -->
+            <include
+                android:id="@+id/ui_state"
+                layout="@layout/view_ui_state"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </FrameLayout>
     </LinearLayout>
 

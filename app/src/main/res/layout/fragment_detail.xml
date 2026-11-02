@@ -17,11 +17,15 @@
         app:title="@string/detail_title"
         app:titleTextAppearance="@style/TextAppearance.CSM.Title" />
 
-    <androidx.core.widget.NestedScrollView
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:fillViewport="true">
+        android:layout_weight="1">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
         <LinearLayout
             android:id="@+id/content_group"
@@ -245,9 +249,18 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+        </androidx.core.widget.NestedScrollView>
+
+        <!-- 商品不存在 / 加载失败时用统一错误态，而不是一片空白 -->
+        <include
+            android:id="@+id/ui_state"
+            layout="@layout/view_ui_state"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/bottom_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/bg_card"

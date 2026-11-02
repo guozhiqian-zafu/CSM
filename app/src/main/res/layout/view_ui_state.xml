@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  通用三态容器：加载中 / 空 / 错误。
+  用法：在页面布局里 <include android:id="@+id/ui_state" layout="@layout/view_ui_state" .../>，
+  再通过 ui/common/UiStateViews.kt 里的扩展函数切换状态，避免每个页面各写一套 show/hide。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="@dimen/spacing_l"
+    android:visibility="gone"
+    tools:visibility="visible">
+
+    <!-- 加载态 -->
+    <LinearLayout
+        android:id="@+id/state_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ProgressBar
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:indeterminate="true"
+            android:indeterminateTint="@color/brand_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_s"
+            android:text="@string/state_loading"
+            android:textColor="@color/text_secondary"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- 空态 -->
+    <LinearLayout
+        android:id="@+id/state_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_state_empty_icon"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:contentDescription="@string/cd_state_icon"
+            android:src="@drawable/ic_empty_box"
+            app:tint="@color/text_tertiary" />
+
+        <TextView
+            android:id="@+id/tv_state_empty_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_m"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.CSM.Title"
+            tools:text="@string/home_empty_title" />
+
+        <TextView
+            android:id="@+id/tv_state_empty_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.CSM.Body"
+            tools:text="@string/home_empty_desc" />
+    </LinearLayout>
+
+    <!-- 错误态：文案来自 CsmError，按钮只在可重试时出现 -->
+    <LinearLayout
+        android:id="@+id/state_error"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ImageView
+            android:id="@+id/iv_state_error_icon"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:contentDescription="@string/cd_state_icon"
+            android:src="@drawable/ic_tag"
+            app:tint="@color/text_tertiary" />
+
+        <TextView
+            android:id="@+id/tv_state_error_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_m"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.CSM.Title"
+            tools:text="@string/error_network_title" />
+
+        <TextView
+            android:id="@+id/tv_state_error_desc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xs"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.CSM.Body"
+            tools:text="@string/error_network_desc" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_state_retry"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_m"
+            android:minWidth="120dp"
+            android:text="@string/state_retry" />
+    </LinearLayout>
+</LinearLayout>

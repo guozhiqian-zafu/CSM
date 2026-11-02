@@ -45,9 +45,18 @@ echo "sdk.dir=C:\\Apps\\sdk" > local.properties
 
 # 2. 编译
 ./gradlew assembleDebug
+
+# 3. 跑单元测试
+./gradlew testDebugUnitTest
 ```
 
-> 本机环境提示：`JAVA_HOME` 需指向 JDK 17+（本项目在 `D:\java\jdk`，JDK 21）后再执行 Gradle。
+> 本机环境提示 1：`JAVA_HOME` 需指向 JDK 17+（本项目在 `D:\java\jdk`，JDK 21）后再执行 Gradle。
+>
+> 本机环境提示 2：如果 Windows 用户名或工程路径里含中文，Gradle 测试任务会报
+> `ClassNotFoundException: GradleWorkerMain`。此时把 Gradle 用户目录改到纯英文路径即可：
+> `set GRADLE_USER_HOME=D:\AndroidGradle`（Android Studio 在
+> `Settings → Build Tools → Gradle → Gradle user home` 改同一项）。
+> 详见 [docs/07-测试与问题记录.md](docs/07-测试与问题记录.md) 问题 7。
 
 ## 文档
 

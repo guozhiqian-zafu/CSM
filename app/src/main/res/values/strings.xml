@@ -16,11 +16,30 @@
     <string name="cd_cover">商品图片</string>
     <string name="cd_empty">空状态插图</string>
 
+    <!-- 通用状态（加载 / 空 / 错误） -->
+    <string name="state_loading">正在加载…</string>
+    <string name="state_retry">重试</string>
+    <string name="cd_state_icon">状态插图</string>
+
+    <!-- 错误态文案：按错误类型给不同提示，而不是一句「加载失败」 -->
+    <string name="error_network_title">网络好像不太稳定</string>
+    <string name="error_network_desc">检查一下网络连接，或者稍后再试试</string>
+    <string name="error_timeout_title">加载超时了</string>
+    <string name="error_timeout_desc">校园网有时候会抽风，点重试再来一次</string>
+    <string name="error_not_found_title">商品不在了</string>
+    <string name="error_not_found_desc">可能已被卖家下架，或者链接已经失效</string>
+    <string name="error_permission_title">没有拿到相应权限</string>
+    <string name="error_permission_desc">可以到系统设置里打开权限，或者先用手动方式操作</string>
+    <string name="error_unknown_title">出了点小问题</string>
+    <string name="error_unknown_desc">稍后重试一下，如果一直失败可以反馈给我们</string>
+
     <!-- 首页 -->
     <string name="home_search">搜索</string>
     <string name="home_publish">发布闲置</string>
     <string name="home_empty_title">暂无商品</string>
     <string name="home_empty_desc">换个分类看看，或者发布你的第一件闲置</string>
+    <string name="home_empty_filtered_title">这个分类还没有商品</string>
+    <string name="home_empty_filtered_desc">先看看其他分类，或者你来发布第一件</string>
 
     <!-- 详情 -->
     <string name="detail_title">商品详情</string>
