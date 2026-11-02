@@ -130,4 +130,9 @@
     <string name="messages_send_rejected">留言没能发出去，检查内容后再试</string>
     <string name="messages_empty_title">还没有人留言</string>
     <string name="messages_empty_desc">来问第一句吧，卖家会看到的</string>
-    <string name="messages_about">咨询：%1$s</string></resources>
+    <string name="messages_about">咨询：%1$s</string>    <!-- 通知 -->
+    <string name="notification_channel_unread">留言提醒</string>
+    <string name="notification_channel_unread_desc">有人给你的商品留言时提醒你</string>
+    <string name="notification_unread_title">有新的留言</string>
+    <string name="notification_unread_text">你有 %1$d 条未读留言，点开看看</string>
+</resources>

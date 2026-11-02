@@ -3,6 +3,8 @@ package com.csm.market
 import android.app.Application
 import android.content.Context
 import com.csm.market.di.AppContainer
+import com.csm.market.util.NotificationHelper
+import com.csm.market.work.UnreadReminderWorker
 
 /**
  * 应用入口。
@@ -18,6 +20,10 @@ class CsmApp : Application() {
     override fun onCreate() {
         super.onCreate()
         container = AppContainer(this)
+        // 通知渠道要先建好，后续 Worker 才能直接发通知
+        NotificationHelper.ensureChannels(this)
+        // 周期检查未读留言（6 小时一次，有网才跑）
+        UnreadReminderWorker.schedule(this)
     }
 }
 

@@ -98,6 +98,8 @@ dependencies {
     implementation(libs.coil)
     // 压缩前读 EXIF 方向，避免竖拍的图在列表里躺倒
     implementation(libs.androidx.exifinterface)
+    // 留言提醒：后台周期任务 + 通知
+    implementation(libs.androidx.work.runtime.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
