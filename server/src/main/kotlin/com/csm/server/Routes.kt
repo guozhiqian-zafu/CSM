@@ -36,6 +36,8 @@ fun Application.registerProductRoutes(store: ProductStore) {
                 val sort = call.request.queryParameters["sort"]
                 val minPrice = call.request.queryParameters["minPrice"]?.toDoubleOrNull()
                 val maxPrice = call.request.queryParameters["maxPrice"]?.toDoubleOrNull()
+                // 我的发布页靠它只看自己发布的东西
+                val sellerId = call.request.queryParameters["sellerId"]
 
                 if (category != null && category !in validCategories) {
                     call.respond(
@@ -67,7 +69,8 @@ fun Application.registerProductRoutes(store: ProductStore) {
                     minPrice = minPrice,
                     maxPrice = maxPrice,
                     condition = condition,
-                    sort = sort
+                    sort = sort,
+                    sellerId = sellerId
                 )
                 call.respond(envelope(data = result))
             }

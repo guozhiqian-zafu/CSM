@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.csm.market.R
 import com.csm.market.databinding.FragmentProfileBinding
 
@@ -32,7 +33,9 @@ class ProfileFragment : Fragment() {
         val comingSoon = View.OnClickListener {
             Toast.makeText(requireContext(), R.string.feature_coming_soon, Toast.LENGTH_SHORT).show()
         }
-        binding.itemMyListings.setOnClickListener(comingSoon)
+        binding.itemMyListings.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_my_listings)
+        }
         binding.itemMyMessages.setOnClickListener(comingSoon)
         binding.itemSettings.setOnClickListener(comingSoon)
         binding.btnLogin.setOnClickListener(comingSoon)

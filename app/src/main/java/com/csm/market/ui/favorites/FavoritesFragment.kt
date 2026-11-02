@@ -36,7 +36,7 @@ class FavoritesFragment : Fragment() {
 
     private val viewModel: FavoritesViewModel by viewModels { FavoritesViewModel.Factory }
 
-    private val adapter = ProductAdapter { product -> openDetail(product) }
+    private val adapter = ProductAdapter(onItemClick = { product -> openDetail(product) })
 
     override fun onCreateView(
         inflater: LayoutInflater,

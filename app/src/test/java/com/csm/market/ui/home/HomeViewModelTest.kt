@@ -168,5 +168,9 @@ class HomeViewModelTest {
 
         /** 首页用例不涉及定价，返回 null 让调用方走兜底分支即可。 */
         override suspend fun priceStats(category: ProductCategory?) = null
+
+        override suspend fun myListings(): List<Product> = error("首页用例不会调用 myListings")
+
+        override suspend fun takeDown(id: String) = error("首页用例不会调用 takeDown")
     }
 }

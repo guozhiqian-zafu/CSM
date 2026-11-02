@@ -93,6 +93,19 @@ class DefaultProductRepository(
 
     override suspend fun countProducts(): Int = dao.count()
 
+    override suspend fun myListings(): List<Product> {
+        val mine = remote.fetchMyListings()
+        _isOffline.value = false
+        return mine
+    }
+
+    override suspend fun takeDown(id: String) {
+        // 先让服务端下架，成功后再删本地缓存：反过来的话服务端失败，
+        // 本地却已经看不到了，下次刷新又「复活」，用户会以为下架没生效
+        remote.takeDownProduct(id)
+        dao.deleteById(id)
+    }
+
     override suspend fun publish(
         product: NewProduct,
         images: List<java.io.File>,

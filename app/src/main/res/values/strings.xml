@@ -135,4 +135,14 @@
     <string name="notification_channel_unread_desc">有人给你的商品留言时提醒你</string>
     <string name="notification_unread_title">有新的留言</string>
     <string name="notification_unread_text">你有 %1$d 条未读留言，点开看看</string>
-</resources>
+    <string name="my_listings_title">我的发布</string>
+    <string name="my_listings_hint">长按商品可以下架</string>
+    <string name="my_listings_empty_title">还没有发布过商品</string>
+    <string name="my_listings_empty_desc">闲置的教材、数码、生活用品都能换点钱</string>
+    <string name="my_listings_go_publish">去发布</string>
+    <string name="my_listings_take_down_title">下架这件商品？</string>
+    <string name="my_listings_take_down_message">「%1$s」将不再出现在首页，已收到的留言仍会保留。</string>
+    <string name="my_listings_take_down_confirm">下架</string>
+    <string name="my_listings_cancel">再想想</string>
+    <string name="my_listings_taken_down">已下架</string>
+    <string name="my_listings_take_down_failed">下架失败，请稍后重试</string></resources>

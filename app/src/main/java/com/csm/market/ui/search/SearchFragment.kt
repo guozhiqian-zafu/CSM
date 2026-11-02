@@ -40,7 +40,7 @@ class SearchFragment : Fragment() {
 
     private val viewModel: SearchViewModel by viewModels { SearchViewModel.Factory }
 
-    private val adapter = ProductAdapter { product -> openDetail(product) }
+    private val adapter = ProductAdapter(onItemClick = { product -> openDetail(product) })
 
     override fun onCreateView(
         inflater: LayoutInflater,

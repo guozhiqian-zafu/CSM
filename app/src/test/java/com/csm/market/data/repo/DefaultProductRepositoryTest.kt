@@ -127,6 +127,30 @@ class DefaultProductRepositoryTest {
         )
     }
 
+    @Test
+    fun `下架成功后本地缓存同步删除`() = runTest {
+        val dao = FakeProductDao(listOf(book.toEntity(now = 0L)))
+        val remote = FakeRemote(products = listOf(book))
+        val repository = DefaultProductRepository(dao, remote)
+
+        repository.takeDown("b1")
+
+        assertEquals(listOf("b1"), remote.takenDownIds)
+        assertNull("服务端下架成功后本地也要删掉，否则详情页还能翻到", dao.findById("b1"))
+    }
+
+    @Test
+    fun `下架失败时不删本地缓存`() = runTest {
+        val dao = FakeProductDao(listOf(book.toEntity(now = 0L)))
+        val remote = FakeRemote(products = listOf(book), failure = IOException("no network"))
+        val repository = DefaultProductRepository(dao, remote)
+
+        val error = runCatching { repository.takeDown("b1") }.exceptionOrNull()
+
+        assertTrue("期望 IOException，实际 $error", error is IOException)
+        assertTrue("服务端没成功就不能删本地，否则下次刷新会「复活」", dao.findById("b1") != null)
+    }
+
     private fun product(id: String, category: ProductCategory, price: Double): Product = Product(
         id = id,
         title = "测试商品 $id",
@@ -207,6 +231,16 @@ class DefaultProductRepositoryTest {
             return singleResult
         }
 
+        override suspend fun fetchMyListings(): List<Product> {
+            failure?.let { throw it }
+            return products
+        }
+
+        override suspend fun takeDownProduct(id: String) {
+            failure?.let { throw it }
+            takenDownIds += id
+        }
+
         override suspend fun publishProduct(request: CreateProductRequest): Product {
             failure?.let { throw it }
             lastRequest = request
@@ -226,5 +260,8 @@ class DefaultProductRepositoryTest {
 
         /** 记录最后一次发布请求，用来断言图片地址确实带进了请求体。 */
         var lastRequest: CreateProductRequest? = null
+
+        /** 记录被下架的商品 id。 */
+        val takenDownIds = mutableListOf<String>()
     }
 }

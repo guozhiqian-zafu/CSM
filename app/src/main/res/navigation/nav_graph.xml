@@ -77,5 +77,19 @@
         android:id="@+id/profileFragment"
         android:name="com.csm.market.ui.profile.ProfileFragment"
         android:label="@string/profile_title"
-        tools:layout="@layout/fragment_profile" />
+        tools:layout="@layout/fragment_profile">
+        <action
+            android:id="@+id/action_profile_to_my_listings"
+            app:destination="@id/myListingsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/myListingsFragment"
+        android:name="com.csm.market.ui.mylistings.MyListingsFragment"
+        android:label="@string/my_listings_title"
+        tools:layout="@layout/fragment_my_listings">
+        <action
+            android:id="@+id/action_my_listings_to_detail"
+            app:destination="@id/detailFragment" />
+    </fragment>
 </navigation>

@@ -57,6 +57,20 @@ class NetworkProductDataSource(
         return dto.toDomain(clock())
     }
 
+    override suspend fun fetchMyListings(): List<Product> {
+        // 一次拿 50 条足够：校园场景一个人不会同时在卖上百件东西，
+        // 真需要分页再给这个接口加 page 参数即可
+        val pageDto = api.listProducts(page = 1, size = 50, sellerId = ME_SELLER_ID)
+            .unwrap() ?: return emptyList()
+        val now = clock()
+        return pageDto.items.map { it.toDomain(now) }
+    }
+
+    override suspend fun takeDownProduct(id: String) {
+        // 服务端是软删除：响应体里只有一句提示，客户端只关心有没有抛异常
+        api.deleteProduct(id).unwrap()
+    }
+
     override suspend fun publishProduct(request: CreateProductRequest): Product {
         val dto = api.createProduct(request).unwrap()
             ?: throw ApiException(code = -1, httpStatus = 200, message = "发布失败：响应体为空")
@@ -77,5 +91,13 @@ class NetworkProductDataSource(
         val upload = api.uploadImage(part).unwrap()
             ?: throw ApiException(code = -1, httpStatus = 200, message = "图片上传失败：响应体为空")
         return upload.url
+    }
+
+    private companion object {
+        /**
+         * 当前没有账号体系，服务端把「我」固定成 u-me（见 server 端 ProductStore.ME）。
+         * 接入真实登录后这里换成 userId 即可，接口不变。
+         */
+        const val ME_SELLER_ID = "u-me"
     }
 }

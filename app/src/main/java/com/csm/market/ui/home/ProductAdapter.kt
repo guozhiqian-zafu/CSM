@@ -19,7 +19,9 @@ import com.csm.market.util.formatRelativeTime
  * 不需要手动 notifyDataSetChanged，避免列表闪烁。
  */
 class ProductAdapter(
-    private val onItemClick: (Product) -> Unit
+    private val onItemClick: (Product) -> Unit,
+    // 我的发布页用长按触发「下架」；首页/收藏页传 null，不改变它们的交互
+    private val onItemLongClick: ((Product) -> Unit)? = null
 ) : ListAdapter<Product, ProductAdapter.ProductViewHolder>(DiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
@@ -58,6 +60,15 @@ class ProductAdapter(
                 }
             }
             binding.root.setOnClickListener { onItemClick(product) }
+            binding.root.setOnLongClickListener {
+                val handler = onItemLongClick
+                if (handler == null) {
+                    false
+                } else {
+                    handler(product)
+                    true
+                }
+            }
         }
     }
 

@@ -47,7 +47,7 @@ class HomeFragment : Fragment() {
 
     private val viewModel: HomeViewModel by viewModels { HomeViewModel.Factory }
 
-    private val adapter = ProductAdapter { product -> openDetail(product) }
+    private val adapter = ProductAdapter(onItemClick = { product -> openDetail(product) })
 
     /** 系统权限弹窗的回调：同意就取定位，拒绝就只提示、保持默认排序。 */
     private val permissionLauncher = registerForActivityResult(

@@ -38,7 +38,9 @@ interface CsmApi {
         @Query("condition") condition: String? = null,
         @Query("minPrice") minPrice: Double? = null,
         @Query("maxPrice") maxPrice: Double? = null,
-        @Query("sort") sort: String? = null
+        @Query("sort") sort: String? = null,
+        /** 只看某个卖家发布的，我的发布页用 */
+        @Query("sellerId") sellerId: String? = null
     ): Response<ApiEnvelope<ProductPageDto>>
 
     @GET("api/products/{id}")

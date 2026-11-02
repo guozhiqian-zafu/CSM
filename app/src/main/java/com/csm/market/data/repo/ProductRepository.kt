@@ -61,4 +61,15 @@ interface ProductRepository {
      * 不能因为它失败就挡住发布流程。
      */
     suspend fun priceStats(category: ProductCategory?): com.csm.market.data.model.PriceStats?
+
+    /**
+     * 我发布的商品。
+     *
+     * 返回一次性快照而不是 Flow：发布/下架都会整页重新拉一次，
+     * 服务端才是唯一事实来源，没必要再维护一张可观察的「我的」表。
+     */
+    suspend fun myListings(): List<Product>
+
+    /** 下架自己发布的商品：服务端软删除，本地缓存同步删除。 */
+    suspend fun takeDown(id: String)
 }

@@ -20,6 +20,12 @@ interface ProductRemoteDataSource {
 
     suspend fun fetchProduct(id: String): Product?
 
+    /** 我发布的商品（服务端按 sellerId=u-me 过滤）。 */
+    suspend fun fetchMyListings(): List<Product>
+
+    /** 下架自己发布的商品；服务端做软删除，返回后列表里就不该再有它。 */
+    suspend fun takeDownProduct(id: String)
+
     suspend fun publishProduct(request: CreateProductRequest): Product
 
     suspend fun fetchPriceStats(category: ProductCategory?): PriceStatsDto

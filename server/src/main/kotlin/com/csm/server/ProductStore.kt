@@ -27,7 +27,9 @@ class ProductStore private constructor(private val connection: Connection) {
         minPrice: Double?,
         maxPrice: Double?,
         condition: String?,
-        sort: String?
+        sort: String?,
+        // 只看某个卖家发布的：我的发布页用，null 表示不限制
+        sellerId: String? = null
     ): ProductPage {
         val where = StringBuilder("WHERE status = 'ON_SALE'")
         val args = mutableListOf<Any>()
@@ -52,6 +54,10 @@ class ProductStore private constructor(private val connection: Connection) {
         if (!condition.isNullOrBlank()) {
             where.append(" AND condition = ?")
             args += condition
+        }
+        if (!sellerId.isNullOrBlank()) {
+            where.append(" AND seller_id = ?")
+            args += sellerId
         }
 
         val total = connection.prepareStatement("SELECT COUNT(*) FROM products $where").use { ps ->
@@ -106,7 +112,12 @@ class ProductStore private constructor(private val connection: Connection) {
     }
 
     @Synchronized
-    fun create(request: CreateProductRequest, now: OffsetDateTime = OffsetDateTime.now()): ProductDto {
+    fun create(
+        request: CreateProductRequest,
+        now: OffsetDateTime = OffsetDateTime.now(),
+        // 样例数据用它来区分卖家；真实发布走默认值 u-me
+        sellerId: String = ME
+    ): ProductDto {
         val id = "p" + System.currentTimeMillis()
         connection.prepareStatement(
             """
@@ -126,7 +137,7 @@ class ProductStore private constructor(private val connection: Connection) {
             ps.setString(7, request.description)
             ps.setString(8, request.location)
             ps.setString(9, now.toString())
-            ps.setString(10, "u-me")
+            ps.setString(10, sellerId)
             ps.setString(11, request.sellerName)
             // cover 与 images 同源：images 存换行分隔的完整列表，cover 只是第一张的冗余，
             // 列表页少解析一次就能拿到封面
@@ -459,8 +470,10 @@ class ProductStore private constructor(private val connection: Connection) {
 
         val base = OffsetDateTime.now().minusHours(3)
         seeds.forEachIndexed { index, seed ->
-            // 样例的发布时间依次往前推，列表看起来才像真的有人在陆续发布
-            create(seed, base.minusHours(index * 5L))
+            // 样例的发布时间依次往前推，列表看起来才像真的有人在陆续发布。
+            // 每 3 条留 1 条给「我」，这样「我的发布」页有内容可看，其余挂在别的卖家名下。
+            val sellerId = if (index % 3 == 0) ME else "u-seed-$index"
+            create(seed, base.minusHours(index * 5L), sellerId)
         }
     }
 }
