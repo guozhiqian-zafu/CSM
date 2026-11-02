@@ -71,6 +71,18 @@
             android:gravity="center"
             android:textAppearance="@style/TextAppearance.CSM.Body"
             tools:text="@string/home_empty_desc" />
+
+        <!-- 空态的可选行动按钮：只有调用方传了文案才显示（如收藏页的「去逛逛」） -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_state_action"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_l"
+            android:minWidth="120dp"
+            android:visibility="gone"
+            tools:text="@string/favorites_go_shopping"
+            tools:visibility="visible" />
     </LinearLayout>
 
     <!-- 错误态：文案来自 CsmError，按钮只在可重试时出现 -->

@@ -2,6 +2,8 @@ package com.csm.market.di
 
 import android.content.Context
 import com.csm.market.data.local.CsmDatabase
+import com.csm.market.data.repo.FavoriteRepository
+import com.csm.market.data.repo.LocalFavoriteRepository
 import com.csm.market.data.repo.LocalProductRepository
 import com.csm.market.data.repo.ProductRepository
 
@@ -21,5 +23,9 @@ class AppContainer(context: Context) {
 
     val productRepository: ProductRepository by lazy {
         LocalProductRepository(database.productDao())
+    }
+
+    val favoriteRepository: FavoriteRepository by lazy {
+        LocalFavoriteRepository(database.favoriteDao())
     }
 }

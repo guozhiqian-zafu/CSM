@@ -75,6 +75,9 @@
     <string name="favorites_empty_title">还没有收藏</string>
     <string name="favorites_empty_desc">在商品详情页点击收藏，方便以后回来看</string>
     <string name="favorites_go_shopping">去逛逛</string>
+    <string name="favorites_added">已加入收藏</string>
+    <string name="favorites_removed">已取消收藏</string>
+    <string name="detail_favorited">已收藏</string>
 
     <!-- 我的 -->
     <string name="profile_title">我的</string>

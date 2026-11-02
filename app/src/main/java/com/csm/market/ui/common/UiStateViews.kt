@@ -27,13 +27,31 @@ fun ViewUiStateBinding.showLoading() {
     stateError.isVisible = false
 }
 
-fun ViewUiStateBinding.showEmpty(@StringRes titleRes: Int, @StringRes descRes: Int) {
+/**
+ * 空态。可选传一个行动按钮（如收藏页的「去逛逛」）：
+ * 不传文案时按钮保持隐藏，共用同一个三态布局，页面布局里不用各留一个按钮。
+ */
+fun ViewUiStateBinding.showEmpty(
+    @StringRes titleRes: Int,
+    @StringRes descRes: Int,
+    @StringRes actionRes: Int? = null,
+    onAction: (() -> Unit)? = null
+) {
     root.isVisible = true
     stateLoading.isVisible = false
     stateEmpty.isVisible = true
     stateError.isVisible = false
     tvStateEmptyTitle.setText(titleRes)
     tvStateEmptyDesc.setText(descRes)
+
+    val hasAction = actionRes != null && onAction != null
+    btnStateAction.isVisible = hasAction
+    if (hasAction) {
+        btnStateAction.setText(actionRes!!)
+        btnStateAction.setOnClickListener { onAction?.invoke() }
+    } else {
+        btnStateAction.setOnClickListener(null)
+    }
 }
 
 /**

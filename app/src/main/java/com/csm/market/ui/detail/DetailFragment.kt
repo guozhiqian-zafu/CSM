@@ -1,10 +1,12 @@
 package com.csm.market.ui.detail
 
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -50,14 +52,41 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
-        binding.btnFavorite.setOnClickListener { toast(R.string.feature_coming_soon) }
+        binding.btnFavorite.setOnClickListener { viewModel.toggleFavorite() }
         binding.btnMessage.setOnClickListener { toast(R.string.feature_coming_soon) }
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.state.collect { state -> renderState(state) }
+                launch { viewModel.state.collect { state -> renderState(state) } }
+                launch { viewModel.isFavorite.collect { bindFavorite(it) } }
+                launch {
+                    viewModel.events.collect { event ->
+                        toast(
+                            when (event) {
+                                DetailViewModel.FavoriteEvent.Added -> R.string.favorites_added
+                                DetailViewModel.FavoriteEvent.Removed -> R.string.favorites_removed
+                            }
+                        )
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * 收藏按钮的两种形态：未收藏是描边按钮，已收藏是实心按钮。
+     * 只改文案和色调，不换布局——换布局会导致按钮宽度跳动。
+     */
+    private fun bindFavorite(isFavorite: Boolean) {
+        binding.btnFavorite.setText(
+            if (isFavorite) R.string.detail_favorited else R.string.detail_favorite
+        )
+        binding.btnFavorite.isActivated = isFavorite
+        val tint = ContextCompat.getColor(
+            requireContext(),
+            if (isFavorite) R.color.brand_primary_dark else R.color.brand_primary
+        )
+        binding.btnFavorite.iconTint = ColorStateList.valueOf(tint)
     }
 
     private fun renderState(state: UiState<Product>) {
