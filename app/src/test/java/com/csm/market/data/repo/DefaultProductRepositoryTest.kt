@@ -98,6 +98,35 @@ class DefaultProductRepositoryTest {
         assertNull("服务端明确说不存在时必须返回 null，否则会展示已下架商品", result)
     }
 
+    @Test
+    fun `发布时先逐张上传图片，再把地址写进创建请求`() = runTest {
+        val dao = FakeProductDao()
+        val remote = FakeRemote(products = listOf(book))
+        val repository = DefaultProductRepository(dao, remote)
+        val first = File.createTempFile("csm_a", ".jpg").apply { deleteOnExit() }
+        val second = File.createTempFile("csm_b", ".jpg").apply { deleteOnExit() }
+
+        repository.publish(
+            NewProduct(
+                title = "台灯",
+                price = 45.0,
+                originalPrice = 89.0,
+                category = ProductCategory.DAILY,
+                condition = ProductCondition.GOOD,
+                description = "三档亮度",
+                location = "三号宿舍楼"
+            ),
+            images = listOf(first, second)
+        )
+
+        assertEquals("两张图应当上传两次", listOf(first.name, second.name), remote.uploadedFiles)
+        assertEquals(
+            "创建请求里应当带上传后的相对地址",
+            listOf("/uploads/${first.name}", "/uploads/${second.name}"),
+            remote.lastRequest?.images
+        )
+    }
+
     private fun product(id: String, category: ProductCategory, price: Double): Product = Product(
         id = id,
         title = "测试商品 $id",
@@ -177,6 +206,7 @@ class DefaultProductRepositoryTest {
 
         override suspend fun publishProduct(request: CreateProductRequest): Product {
             failure?.let { throw it }
+            lastRequest = request
             return products.first()
         }
 
@@ -190,5 +220,8 @@ class DefaultProductRepositoryTest {
 
         /** 记录上传过哪些文件，用来断言「几张图就上传几次」。 */
         val uploadedFiles = mutableListOf<String>()
+
+        /** 记录最后一次发布请求，用来断言图片地址确实带进了请求体。 */
+        var lastRequest: CreateProductRequest? = null
     }
 }

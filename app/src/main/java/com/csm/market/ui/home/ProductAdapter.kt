@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
 import com.csm.market.data.model.Product
 import com.csm.market.databinding.ItemProductBinding
 import com.csm.market.util.formatPrice
@@ -36,7 +37,11 @@ class ProductAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(product: Product) {
-            binding.ivCover.setBackgroundResource(product.coverRes)
+            binding.ivCover.load(product.coverUrl) {
+                crossfade(true)
+                placeholder(product.coverRes)
+                error(product.coverRes)
+            }
             binding.tvTitle.text = product.title
             binding.tvPrice.text = formatPrice(product.price)
             binding.tvOriginalPrice.text = product.originalPrice?.let(::formatPrice).orEmpty()

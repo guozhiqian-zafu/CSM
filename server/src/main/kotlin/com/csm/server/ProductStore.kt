@@ -128,8 +128,10 @@ class ProductStore private constructor(private val connection: Connection) {
             ps.setString(9, now.toString())
             ps.setString(10, "u-me")
             ps.setString(11, request.sellerName)
-            ps.setNull(12, java.sql.Types.VARCHAR)
-            ps.setString(13, "")
+            // cover 与 images 同源：images 存换行分隔的完整列表，cover 只是第一张的冗余，
+            // 列表页少解析一次就能拿到封面
+            ps.setString(12, request.images.firstOrNull())
+            ps.setString(13, request.images.joinToString("\n"))
             ps.executeUpdate()
         }
         return find(id) ?: error("刚插入的商品读不回来：$id")

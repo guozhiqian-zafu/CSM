@@ -69,7 +69,16 @@ data class CreateProductRequest(
     val condition: String,
     val description: String = "",
     val location: String = "",
-    val sellerName: String = "我"
+    val sellerName: String = "我",
+    /** 图片先 POST /api/uploads 拿到相对地址，再随商品一起提交 */
+    val images: List<String> = emptyList()
+)
+
+/** 图片上传结果：url 形如 /uploads/xxx.jpg，bytes 是服务端实际落盘的字节数。 */
+@Serializable
+data class UploadDto(
+    val url: String = "",
+    val bytes: Int = 0
 )
 
 /** 价格统计，发布页的定价助手用它做「同类目参考」。 */

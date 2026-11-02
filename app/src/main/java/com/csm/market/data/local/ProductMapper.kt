@@ -31,7 +31,8 @@ fun ProductEntity.toDomain(now: Long = System.currentTimeMillis()): Product {
         location = location,
         publishedMinutesAgo = minutesAgo,
         sellerName = sellerName,
-        coverRes = coverRes
+        coverRes = coverRes,
+        coverUrl = coverUrl
     )
 }
 
@@ -52,5 +53,6 @@ fun Product.toEntity(now: Long = System.currentTimeMillis()): ProductEntity = Pr
     location = location,
     publishedAt = now - publishedMinutesAgo * MILLIS_PER_MINUTE,
     sellerName = sellerName,
-    coverRes = coverRes
+    coverRes = coverRes,
+    coverUrl = coverUrl
 )

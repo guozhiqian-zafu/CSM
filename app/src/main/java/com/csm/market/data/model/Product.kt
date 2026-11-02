@@ -45,5 +45,8 @@ data class Product(
     /** 发布于多少分钟前，用于列表展示「x 小时前」；接入网络后换成真实时间戳。 */
     val publishedMinutesAgo: Int,
     val sellerName: String,
-    @DrawableRes val coverRes: Int
+    /** 本地占位图（服务端没图或图片加载失败时用），保证列表不会出现灰块。 */
+    @DrawableRes val coverRes: Int,
+    /** 服务端返回的封面地址；为空时退回 [coverRes] 的渐变占位图。 */
+    val coverUrl: String? = null
 )

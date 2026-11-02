@@ -1,5 +1,6 @@
 package com.csm.market.data.remote.dto
 
+import com.csm.market.BuildConfig
 import com.csm.market.R
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
@@ -13,10 +14,12 @@ import java.time.format.DateTimeParseException
  * 三个必须做的「翻译」，缺一个 UI 就会崩：
  * 1. `category`/`condition` 是字符串，服务端可能新增枚举值，必须降级成 OTHER / GOOD；
  * 2. `publishedAt` 是 ISO 时间，UI 要的是「几分钟前」，这里换算成分钟数；
- * 3. 服务端只给封面 URL（第 9 次提交才有），当前用分类对应的本地占位图，
- *    保证列表不会出现一片空白。
+ * 3. 服务端只给图片的相对路径（`/uploads/xxx.jpg`），拼上 baseUrl 才能给 Coil 加载。
  */
-fun ProductDto.toDomain(now: Long = System.currentTimeMillis()): Product = Product(
+fun ProductDto.toDomain(
+    now: Long = System.currentTimeMillis(),
+    baseUrl: String = BuildConfig.API_BASE_URL
+): Product = Product(
     id = id,
     title = title,
     price = price,
@@ -27,8 +30,21 @@ fun ProductDto.toDomain(now: Long = System.currentTimeMillis()): Product = Produ
     location = location,
     publishedMinutesAgo = minutesSince(publishedAt, now),
     sellerName = seller.name.ifBlank { "匿名同学" },
-    coverRes = fallbackCover(id)
+    coverRes = fallbackCover(id),
+    coverUrl = absoluteUrl(cover, baseUrl)
 )
+
+/**
+ * 相对路径转绝对地址。
+ *
+ * 服务端存的是 `/uploads/xxx.jpg`——这样换域名、换端口都不用改数据；
+ * 客户端在这里拼一次。已经是 http(s) 的地址原样返回，方便以后接真正的对象存储。
+ */
+internal fun absoluteUrl(path: String?, baseUrl: String): String? {
+    if (path.isNullOrBlank()) return null
+    if (path.startsWith("http://") || path.startsWith("https://")) return path
+    return baseUrl.trimEnd('/') + "/" + path.trimStart('/')
+}
 
 /**
  * ISO-8601 → 「多少分钟前」。

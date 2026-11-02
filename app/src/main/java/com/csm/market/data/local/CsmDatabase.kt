@@ -16,7 +16,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  */
 @Database(
     entities = [ProductEntity::class, FavoriteEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 abstract class CsmDatabase : RoomDatabase() {
@@ -63,6 +63,18 @@ abstract class CsmDatabase : RoomDatabase() {
             }
         }
 
+        /**
+         * v3 → v4：商品表新增 coverUrl 列（服务端图片地址）。
+         *
+         * 用 ALTER TABLE 而不是重建表：老数据一条都不能丢，而这一列允许为空，
+         * 加完列老记录自然就是 NULL，正好退回本地占位图。
+         */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE products ADD COLUMN coverUrl TEXT")
+            }
+        }
+
         @Volatile
         private var instance: CsmDatabase? = null
 
@@ -73,7 +85,7 @@ abstract class CsmDatabase : RoomDatabase() {
                     CsmDatabase::class.java,
                     DB_NAME
                 )
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                     .build()
                     .also { instance = it }
             }

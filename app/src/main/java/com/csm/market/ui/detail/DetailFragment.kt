@@ -14,6 +14,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import coil.load
 import com.csm.market.R
 import com.csm.market.core.ui.UiState
 import com.csm.market.data.model.Product
@@ -116,7 +117,11 @@ class DetailFragment : Fragment() {
     }
 
     private fun bindProduct(product: Product) {
-        binding.ivCover.setBackgroundResource(product.coverRes)
+        binding.ivCover.load(product.coverUrl) {
+            crossfade(true)
+            placeholder(product.coverRes)
+            error(product.coverRes)
+        }
         binding.tvTitle.text = product.title
         binding.tvPrice.text = formatPrice(product.price)
         binding.tvOriginalPrice.text = product.originalPrice?.let(::formatPrice).orEmpty()

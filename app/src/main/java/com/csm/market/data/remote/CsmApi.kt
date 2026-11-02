@@ -5,11 +5,15 @@ import com.csm.market.data.remote.dto.CreateProductRequest
 import com.csm.market.data.remote.dto.PriceStatsDto
 import com.csm.market.data.remote.dto.ProductDto
 import com.csm.market.data.remote.dto.ProductPageDto
+import com.csm.market.data.remote.dto.UploadDto
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -46,4 +50,14 @@ interface CsmApi {
 
     @GET("api/price-stats")
     suspend fun priceStats(@Query("category") category: String? = null): Response<ApiEnvelope<PriceStatsDto>>
+
+    /**
+     * 上传一张图片。
+     *
+     * 用 `@Multipart` + OkHttp 的 `MultipartBody.Part`：Retrofit 会把文件流直接写进请求体，
+     * 不会把整张图先读成 ByteArray 再复制一份，内存占用只有一块缓冲区。
+     */
+    @Multipart
+    @POST("api/uploads")
+    suspend fun uploadImage(@Part file: MultipartBody.Part): Response<ApiEnvelope<UploadDto>>
 }

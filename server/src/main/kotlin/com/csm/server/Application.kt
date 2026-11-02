@@ -60,4 +60,5 @@ fun Application.module() {
 
     val store = ProductStore.open()
     registerProductRoutes(store)
+    registerUploadRoutes()
 }

@@ -70,8 +70,14 @@ data class CreateProductRequest(
     val condition: String,
     val description: String = "",
     val location: String = "",
-    val sellerName: String = "我"
+    val sellerName: String = "我",
+    /** 已经通过 /api/uploads 上传成功的图片地址，第一张作为封面。 */
+    val images: List<String> = emptyList()
 )
+
+/** 图片上传成功后的响应：url 是可直接访问的相对地址，客户端拼上 baseUrl 即可显示。 */
+@Serializable
+data class UploadDto(val url: String, val bytes: Int)
 
 @Serializable
 data class PriceStatsDto(

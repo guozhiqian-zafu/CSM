@@ -6,7 +6,9 @@ import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
 import com.csm.market.data.model.ProductCondition
 import com.csm.market.data.model.ProductQuery
+import com.csm.market.data.repo.NewProduct
 import com.csm.market.data.repo.ProductRepository
+import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -154,6 +156,13 @@ class HomeViewModelTest {
         override suspend fun search(query: ProductQuery): List<Product> = emptyList()
 
         override suspend fun saveProduct(product: Product) = Unit
+
+        /** 首页用例不涉及发布，这里只要满足接口即可。 */
+        override suspend fun publish(
+            product: NewProduct,
+            images: List<File>,
+            onProgress: (done: Int, total: Int) -> Unit
+        ): Product = error("首页用例不会调用 publish")
 
         override suspend fun countProducts(): Int = source.value.size
     }

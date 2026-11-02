@@ -92,6 +92,11 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.kotlinx.serialization.json)
 
+    // 图片：Coil 负责把服务端返回的 URL 加载进 ImageView（自带内存/磁盘缓存）
+    implementation(libs.coil)
+    // 压缩前读 EXIF 方向，避免竖拍的图在列表里躺倒
+    implementation(libs.androidx.exifinterface)
+
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)

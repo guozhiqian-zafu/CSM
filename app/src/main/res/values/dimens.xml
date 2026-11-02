@@ -9,4 +9,6 @@
     <dimen name="cover_thumb_size">96dp</dimen>
     <dimen name="detail_cover_height">220dp</dimen>
     <dimen name="icon_size">24dp</dimen>
+    <!-- 发布页缩略图：与「添加」按钮同尺寸，横排看起来整齐 -->
+    <dimen name="photo_thumb_size">96dp</dimen>
 </resources>
