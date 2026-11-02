@@ -7,27 +7,36 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.csm.market.R
-import com.csm.market.core.error.CsmError
-import com.csm.market.data.sample.SampleData
+import com.csm.market.core.ui.UiState
+import com.csm.market.data.model.Product
 import com.csm.market.databinding.FragmentDetailBinding
 import com.csm.market.ui.common.hideState
 import com.csm.market.ui.common.showError
+import com.csm.market.ui.common.showLoading
 import com.csm.market.util.formatPrice
 import com.csm.market.util.formatRelativeTime
+import kotlinx.coroutines.launch
 
 /**
  * 商品详情页。
  *
- * 第 2 次提交补上错误态：商品不存在时不再只是「Toast + 一片空白」，
- * 而是给出说明、隐藏底部操作栏，并允许返回列表。
- * 数据仍来自样例数据，第 3 次提交改为 ViewModel + 单一数据源。
+ * 第 3 次提交接入 ViewModel：商品从仓库按 id 读取，Fragment 只渲染状态。
+ * 加载中显示进度条而不是留白，查不到则给出错误态 + 返回入口。
  */
 class DetailFragment : Fragment() {
 
     private var _binding: FragmentDetailBinding? = null
     private val binding get() = _binding!!
+
+    private val viewModel: DetailViewModel by viewModels {
+        DetailViewModel.factory(requireArguments().getString(ARG_PRODUCT_ID).orEmpty())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,18 +50,43 @@ class DetailFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.toolbar.setNavigationOnClickListener { findNavController().navigateUp() }
+        binding.btnFavorite.setOnClickListener { toast(R.string.feature_coming_soon) }
+        binding.btnMessage.setOnClickListener { toast(R.string.feature_coming_soon) }
 
-        val productId = arguments?.getString(ARG_PRODUCT_ID)
-        val product = productId?.let(SampleData::findById)
-        if (product == null) {
-            showMissingProduct()
-            return
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state -> renderState(state) }
+            }
         }
+    }
 
-        binding.uiState.hideState()
-        binding.contentGroup.isVisible = true
-        binding.bottomBar.isVisible = true
+    private fun renderState(state: UiState<Product>) {
+        when (state) {
+            is UiState.Loading -> {
+                binding.contentGroup.isVisible = false
+                binding.bottomBar.isVisible = false
+                binding.uiState.showLoading()
+            }
 
+            is UiState.Success -> {
+                binding.uiState.hideState()
+                binding.contentGroup.isVisible = true
+                binding.bottomBar.isVisible = true
+                bindProduct(state.data)
+            }
+
+            is UiState.Error -> {
+                binding.contentGroup.isVisible = false
+                binding.bottomBar.isVisible = false
+                // 商品不存在时「重试」没有意义，按钮改为返回列表（navigateUp）
+                binding.uiState.showError(state.error) { findNavController().navigateUp() }
+            }
+
+            is UiState.Empty -> Unit // 详情页不存在「空列表」语义，理论上不会出现
+        }
+    }
+
+    private fun bindProduct(product: Product) {
         binding.ivCover.setBackgroundResource(product.coverRes)
         binding.tvTitle.text = product.title
         binding.tvPrice.text = formatPrice(product.price)
@@ -65,21 +99,6 @@ class DetailFragment : Fragment() {
         binding.tvTime.text = formatRelativeTime(product.publishedMinutesAgo)
         binding.tvSeller.text = product.sellerName
         binding.tvSellerAvatar.text = product.sellerName.take(1)
-
-        binding.btnFavorite.setOnClickListener { toast(R.string.feature_coming_soon) }
-        binding.btnMessage.setOnClickListener { toast(R.string.feature_coming_soon) }
-    }
-
-    /**
-     * 商品不存在的完整降级：隐藏正文与操作栏，展示统一错误态。
-     * 错误态里的按钮文案是「重试」，这里的语义是「返回列表」，所以直接把点击行为指回上一页。
-     */
-    private fun showMissingProduct() {
-        binding.contentGroup.isVisible = false
-        binding.bottomBar.isVisible = false
-        binding.uiState.showError(CsmError.NotFound) {
-            findNavController().navigateUp()
-        }
     }
 
     private fun toast(resId: Int) {

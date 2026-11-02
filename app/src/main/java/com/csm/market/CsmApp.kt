@@ -1,11 +1,26 @@
 package com.csm.market
 
 import android.app.Application
+import android.content.Context
+import com.csm.market.di.AppContainer
 
 /**
  * 应用入口。
  *
- * 选择在这里做全局初始化（后续会挂载 Room、Retrofit、图片加载器等），
- * 避免把初始化逻辑散落在 Activity 中，也方便单元测试替换依赖。
+ * 全局只在这里创建一次依赖容器（数据库、仓库、后续的网络客户端），
+ * 其他组件通过 [appContainer] 扩展取用，避免把初始化散落在各个 Activity/Fragment。
  */
-class CsmApp : Application()
+class CsmApp : Application() {
+
+    lateinit var container: AppContainer
+        private set
+
+    override fun onCreate() {
+        super.onCreate()
+        container = AppContainer(this)
+    }
+}
+
+/** 在任意持有 Context 的地方取到依赖容器。 */
+val Context.appContainer: AppContainer
+    get() = (applicationContext as CsmApp).container

@@ -8,14 +8,16 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.csm.market.R
 import com.csm.market.core.ui.UiState
 import com.csm.market.data.model.Product
 import com.csm.market.data.model.ProductCategory
-import com.csm.market.data.sample.SampleData
 import com.csm.market.databinding.FragmentHomeBinding
 import com.csm.market.ui.common.hideState
 import com.csm.market.ui.common.showEmpty
@@ -23,33 +25,25 @@ import com.csm.market.ui.common.showError
 import com.csm.market.ui.common.startSkeletonPulse
 import com.csm.market.ui.common.stopSkeletonPulse
 import com.google.android.material.chip.Chip
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
  * 首页：商品列表 + 分类筛选。
  *
- * 第 2 次提交把「加载 / 空 / 错误」三态补齐：
- * - 加载：骨架屏（形状与真实卡片一致，数据到位不跳动）
- * - 空：区分「一件商品都没有」和「当前分类没有商品」，文案不同
- * - 错误：统一 CsmError，按错误类型给不同提示，可重试的才显示重试按钮
- *
- * 数据源仍是内存样例数据；第 3 次提交会把这里换成 ViewModel + Repository，
- * 页面只消费 UiState，不需要再改三态逻辑。
+ * 第 3 次提交把数据源换成了 ViewModel + Repository：
+ * - Fragment 不再自己查数据、不再持有 Job，只做「订阅状态 → 画界面」；
+ * - 状态订阅用 `repeatOnLifecycle(STARTED)`：页面退到后台自动停止收集，
+ *   回到前台自动恢复，既不会在不可见时白跑，也不会漏掉恢复后的最新数据；
+ * - 数据来自 Room 的 Flow，商品表一变化列表自动刷新，无需手动回调。
  */
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
+    private val viewModel: HomeViewModel by viewModels { HomeViewModel.Factory }
+
     private val adapter = ProductAdapter { product -> openDetail(product) }
-
-    /** 当前选中的分类，null 表示「全部」 */
-    private var selectedCategory: ProductCategory? = null
-
-    /** 只保留最后一次加载，避免快速切分类时旧请求把新结果覆盖掉 */
-    private var loadJob: Job? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -80,10 +74,15 @@ class HomeFragment : Fragment() {
             findNavController().navigate(R.id.publishFragment)
         }
 
-        binding.uiState.btnStateRetry.setOnClickListener { loadProducts(showLoading = true) }
+        binding.uiState.btnStateRetry.setOnClickListener { viewModel.retry() }
 
         setupCategoryChips()
-        loadProducts(showLoading = true)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state -> renderState(state) }
+            }
+        }
     }
 
     private fun setupCategoryChips() {
@@ -102,11 +101,8 @@ class HomeFragment : Fragment() {
 
         chipGroup.setOnCheckedStateChangeListener { group, checkedIds ->
             val chip = group.findViewById<Chip>(checkedIds.firstOrNull() ?: View.NO_ID)
-            val category = chip?.tag as? ProductCategory
-            if (category == selectedCategory) return@setOnCheckedStateChangeListener
-            selectedCategory = category
-            // 切分类不必再走一次骨架屏：数据在内存里，闪一下加载反而更慢
-            loadProducts(showLoading = false)
+            // tag 为 null 就是「全部」分类
+            viewModel.selectCategory(chip?.tag as? ProductCategory)
         }
     }
 
@@ -118,32 +114,6 @@ class HomeFragment : Fragment() {
             setEnsureMinTouchTargetSize(false)
             chipStrokeWidth = resources.getDimension(R.dimen.chip_stroke)
         }
-    }
-
-    /**
-     * 加载列表。
-     *
-     * 当前没有网络层与数据库，用 400ms 模拟一次异步请求，目的是让三态在真机上可演示、
-     * 也让「异步 + 生命周期」的处理方式先成型：协程挂在 viewLifecycleOwner 上，
-     * 页面销毁自动取消，不会在已销毁的 View 上更新 UI。
-     */
-    private fun loadProducts(showLoading: Boolean) {
-        loadJob?.cancel()
-        loadJob = viewLifecycleOwner.lifecycleScope.launch {
-            if (showLoading) {
-                renderState(UiState.Loading)
-                delay(MOCK_LOAD_DELAY_MS)
-            }
-            val result = queryProducts()
-            renderState(
-                if (result.isEmpty()) UiState.Empty else UiState.Success(result)
-            )
-        }
-    }
-
-    private fun queryProducts(): List<Product> {
-        val category = selectedCategory ?: return SampleData.products
-        return SampleData.products.filter { it.category == category }
     }
 
     private fun renderState(state: UiState<List<Product>>) {
@@ -165,7 +135,9 @@ class HomeFragment : Fragment() {
             is UiState.Empty -> {
                 hideLoading()
                 binding.rvProducts.isVisible = false
-                if (selectedCategory == null) {
+                // 空态文案取决于当前是否在筛选：拖到「教材书籍」却一件没有，
+                // 和整个集市都没有商品，是两种完全不同的信息
+                if (viewModel.selectedCategory.value == null) {
                     binding.uiState.showEmpty(R.string.home_empty_title, R.string.home_empty_desc)
                 } else {
                     binding.uiState.showEmpty(
@@ -178,7 +150,7 @@ class HomeFragment : Fragment() {
             is UiState.Error -> {
                 hideLoading()
                 binding.rvProducts.isVisible = false
-                binding.uiState.showError(state.error) { loadProducts(showLoading = true) }
+                binding.uiState.showError(state.error) { viewModel.retry() }
             }
         }
     }
@@ -200,15 +172,9 @@ class HomeFragment : Fragment() {
     }
 
     override fun onDestroyView() {
-        loadJob?.cancel()
         binding.skeletonGroup.stopSkeletonPulse()
         binding.rvProducts.adapter = null
         _binding = null
         super.onDestroyView()
-    }
-
-    private companion object {
-        /** 模拟异步加载的延迟，接入真实数据源后删除 */
-        const val MOCK_LOAD_DELAY_MS = 400L
     }
 }
