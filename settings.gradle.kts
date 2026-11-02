@@ -22,3 +22,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "CSM"
 include(":app")
+// 自建轻量后端（Ktor + SQLite）：与 App 同仓库，方便演示「真实接口」与「云存储」
+include(":server")

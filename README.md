@@ -31,9 +31,9 @@
 ## 技术栈
 
 - Kotlin 2.0.21 + AndroidX，`minSdk 24 / targetSdk 35`
-- Jetpack：Navigation、ViewModel、Lifecycle、Room（第 5 次提交接入）、WorkManager（第 12 次）
+- Jetpack：Navigation、ViewModel、Lifecycle、Room（第 3 次提交接入）、WorkManager（第 12 次）
 - Material 3（`Theme.Material3.DayNight`，支持深色模式）
-- 网络：Retrofit + OkHttp（第 6 次提交接入），后端为仓库内自建的轻量服务
+- 网络：Retrofit + OkHttp（第 6 次提交接入），后端为仓库内自建的 Ktor + SQLite 服务（第 5 次提交已就绪）
 - 图片：CameraX + 自研压缩/EXIF 清洗；异步统一用 Coroutines + Flow
 - 构建：AGP 8.9.1 + Gradle 8.11.1，JDK 17 字节码
 
@@ -57,6 +57,28 @@ echo "sdk.dir=C:\\Apps\\sdk" > local.properties
 > `set GRADLE_USER_HOME=D:\AndroidGradle`（Android Studio 在
 > `Settings → Build Tools → Gradle → Gradle user home` 改同一项）。
 > 详见 [docs/07-测试与问题记录.md](docs/07-测试与问题记录.md) 问题 7。
+
+## 本地跑服务端（自建 Ktor + SQLite）
+
+`server/` 是随仓库提交的参考后端，商品数据、分页筛选、智能定价基准都在这里实现，
+App 端第 6 次提交起接入它。
+
+```bash
+# 默认监听 8080；本机 8080 被占用时用环境变量换端口
+CSM_PORT=18080 ./gradlew :server:run
+```
+
+```bash
+# 冒烟测试（Windows 下请把 JSON 写成 UTF-8 文件再用 @file，见 docs/07 问题 8）
+curl http://127.0.0.1:18080/health
+curl "http://127.0.0.1:18080/api/products?page=1&size=5&category=BOOK&sort=priceAsc"
+curl "http://127.0.0.1:18080/api/price-stats?category=DIGITAL"
+```
+
+- 数据库文件 `server/data/csm.db` 首次启动自动创建并灌 14 条样例数据，已加入 `.gitignore`；
+- 想重置样例数据，删掉该文件重启即可；
+- 接口约定与错误码见 [docs/04-接口设计.md](docs/04-接口设计.md) 4.9 节。
+
 
 ## 文档
 

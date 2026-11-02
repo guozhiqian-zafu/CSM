@@ -31,3 +31,7 @@ Thumbs.db
 *.jks
 *.keystore
 keystore.properties
+
+# 服务端本地数据库：每次启动会自动建表并灌样例数据，不需要入库
+server/data/*.db
+server/data/*.db-journal

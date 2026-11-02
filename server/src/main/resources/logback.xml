@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    服务端日志配置。
+    默认 INFO：Ktor/Netty 的 DEBUG 日志会把每个请求刷成几百行，联调时根本看不到业务输出。
+    需要排查框架细节时，把对应的 logger level 临时改成 DEBUG。
+-->
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{28} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+    <logger name="io.netty" level="WARN"/>
+    <logger name="com.csm.server" level="INFO"/>
+</configuration>
