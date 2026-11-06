@@ -130,6 +130,6 @@ curl "http://127.0.0.1:18080/api/price-stats?category=DIGITAL"
 
 以下截图拍摄于 MuMu 模拟器（Android 12）真实运行环境，数据来自本仓库 `server/` 模块。
 
-| 首页（列表 + 分类筛选） | 商品详情 | 发布页（智能定价） | 我的发布（长按下架） |
-| --- | --- | --- | --- |
-| ![首页](docs/screenshots/01-home.png) | ![详情](docs/screenshots/02-detail.png) | ![发布](docs/screenshots/03-publish-pricing.png) | ![我的发布](docs/screenshots/04-my-listings.png) |
+| 首页（列表 + 分类筛选） | 商品详情 | 发布页（智能定价） | 我的发布（长按下架） | 我的留言（会话列表） |
+| --- | --- | --- | --- | --- |
+| ![首页](docs/screenshots/01-home.png) | ![详情](docs/screenshots/02-detail.png) | ![发布](docs/screenshots/03-publish-pricing.png) | ![我的发布](docs/screenshots/04-my-listings.png) | ![我的留言](docs/screenshots/05-my-messages.png) |
