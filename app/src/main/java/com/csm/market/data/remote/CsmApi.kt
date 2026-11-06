@@ -1,6 +1,7 @@
 package com.csm.market.data.remote
 
 import com.csm.market.data.remote.dto.ApiEnvelope
+import com.csm.market.data.remote.dto.ConversationDto
 import com.csm.market.data.remote.dto.CreateMessageRequest
 import com.csm.market.data.remote.dto.CreateProductRequest
 import com.csm.market.data.remote.dto.MessageDto
@@ -68,6 +69,10 @@ interface CsmApi {
     /** 未读留言数。 */
     @GET("api/messages/unread-count")
     suspend fun unreadCount(): Response<ApiEnvelope<Map<String, Int>>>
+
+    /** 「我的留言」会话列表：一个商品一条，按最后一条留言时间倒序。 */
+    @GET("api/messages/mine")
+    suspend fun myConversations(): Response<ApiEnvelope<List<ConversationDto>>>
 
     @GET("api/price-stats")
     suspend fun priceStats(@Query("category") category: String? = null): Response<ApiEnvelope<PriceStatsDto>>

@@ -2,6 +2,7 @@ package com.csm.market.ui.messages
 
 import com.csm.market.core.error.CsmError
 import com.csm.market.core.ui.UiState
+import com.csm.market.data.model.Conversation
 import com.csm.market.data.model.Message
 import com.csm.market.data.repo.MessageRepository
 import kotlinx.coroutines.Dispatchers
@@ -155,6 +156,19 @@ class MessageViewModelTest {
             initial += created
             return created
         }
+
+        override suspend fun conversations(): List<Conversation> =
+            initial.map { it.productId }.distinct().map { productId ->
+                val last = initial.last { it.productId == productId }
+                Conversation(
+                    productId = productId,
+                    productTitle = "商品 $productId",
+                    coverUrl = null,
+                    lastContent = last.content,
+                    lastMinutesAgo = last.publishedMinutesAgo,
+                    unreadCount = initial.count { it.productId == productId && !it.isMine && !it.read }
+                )
+            }
 
         override suspend fun unreadCount(): Int = initial.count { !it.isMine && !it.read }
     }

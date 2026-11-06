@@ -108,3 +108,14 @@ data class CreateMessageRequest(
     val content: String,
     val senderName: String = "我"
 )
+
+/** 「我的留言」会话摘要，与服务端 `ConversationDto` 一一对应。 */
+@Serializable
+data class ConversationDto(
+    val productId: String = "",
+    val productTitle: String = "",
+    val cover: String? = null,
+    val lastContent: String = "",
+    val lastAt: String = "",
+    val unreadCount: Int = 0
+)

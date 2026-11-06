@@ -3,6 +3,7 @@ package com.csm.market.data.repo
 import android.content.Context
 
 import com.csm.market.data.local.WidgetState
+import com.csm.market.data.model.Conversation
 import com.csm.market.data.model.Message
 import com.csm.market.data.remote.ApiClient
 import com.csm.market.data.remote.CsmApi
@@ -32,6 +33,13 @@ class RemoteMessageRepository(
             .unwrap()
             ?: error("留言发送失败：服务端没有返回内容")
         return created.toDomain(now)
+    }
+
+    override suspend fun conversations(): List<Conversation> = try {
+        val now = clock()
+        api.myConversations().unwrap().orEmpty().map { it.toDomain(now) }
+    } catch (e: CancellationException) {
+        throw e
     }
 
     override suspend fun unreadCount(): Int = try {

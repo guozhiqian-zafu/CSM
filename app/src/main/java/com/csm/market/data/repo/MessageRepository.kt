@@ -1,5 +1,6 @@
 package com.csm.market.data.repo
 
+import com.csm.market.data.model.Conversation
 import com.csm.market.data.model.Message
 
 /**
@@ -13,6 +14,9 @@ interface MessageRepository {
     suspend fun messages(productId: String): List<Message>
 
     suspend fun send(productId: String, content: String): Message
+
+    /** 「我的留言」会话列表：一个商品一条，按最后一条留言时间倒序。 */
+    suspend fun conversations(): List<Conversation>
 
     /** 未读数：伴生小组件与「我的」页都要用。 */
     suspend fun unreadCount(): Int

@@ -144,5 +144,11 @@
     <string name="my_listings_take_down_message">「%1$s」将不再出现在首页，已收到的留言仍会保留。</string>
     <string name="my_listings_take_down_confirm">下架</string>
     <string name="my_listings_cancel">再想想</string>
+    <!-- 我的留言（会话列表） -->
+    <string name="conversations_title">我的留言</string>
+    <string name="conversations_cover">商品封面</string>
+    <string name="conversations_empty_title">还没有留言</string>
+    <string name="conversations_empty_desc">在商品详情页点「留言」，对话会出现在这里</string>
+    <string name="conversations_go_shopping">去逛逛</string>
     <string name="my_listings_taken_down">已下架</string>
     <string name="my_listings_take_down_failed">下架失败，请稍后重试</string></resources>

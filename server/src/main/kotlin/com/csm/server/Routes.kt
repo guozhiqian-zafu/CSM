@@ -189,6 +189,11 @@ fun Application.registerProductRoutes(store: ProductStore) {
             call.respond(envelope(data = mapOf("count" to store.unreadCount())))
         }
 
+        // GET /api/messages/mine：「我的留言」会话列表，按最后一条留言时间倒序
+        get("/api/messages/mine") {
+            call.respond(envelope(data = store.conversations()))
+        }
+
         // POST /api/messages/{id}/read：标记单条已读
         post("/api/messages/{id}/read") {
             val id = call.parameters["id"].orEmpty()

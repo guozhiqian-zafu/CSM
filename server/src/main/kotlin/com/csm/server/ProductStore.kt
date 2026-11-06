@@ -212,6 +212,50 @@ class ProductStore private constructor(private val connection: Connection) {
         ps.executeUpdate() > 0
     }
 
+    /**
+     * 「我的留言」会话列表：每个商品一条，带最后一条留言与未读数。
+     *
+     * 用一条聚合 SQL 取，而不是「先查商品再逐个查留言」：
+     * 后者在有 N 个会话时要打 N+1 次库，列表一滚就卡。
+     * SQLite 允许在 GROUP BY 里直接取非聚合列（`p.title`），因为它按分组取值。
+     */
+    @Synchronized
+    fun conversations(): List<ConversationDto> = connection.prepareStatement(
+        """
+        SELECT m.product_id AS product_id,
+               p.title AS title,
+               p.cover AS cover,
+               MAX(m.created_at) AS last_at,
+               (SELECT content FROM messages
+                 WHERE product_id = m.product_id
+                 ORDER BY created_at DESC LIMIT 1) AS last_content,
+               SUM(CASE WHEN m.read = 0 AND m.sender_id <> ? THEN 1 ELSE 0 END) AS unread
+          FROM messages m
+          JOIN products p ON p.id = m.product_id
+         GROUP BY m.product_id
+         ORDER BY last_at DESC
+        """.trimIndent()
+    ).use { ps ->
+        ps.setString(1, ME)
+        ps.executeQuery().use { rs ->
+            buildList {
+                while (rs.next()) {
+                    add(
+                        ConversationDto(
+                            productId = rs.getString("product_id"),
+                            productTitle = rs.getString("title"),
+                            cover = rs.getString("cover"),
+                            lastContent = rs.getString("last_content") ?: "",
+                            lastAt = OffsetDateTime.parse(rs.getString("last_at"))
+                                .toString(),
+                            unreadCount = rs.getInt("unread")
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     @Synchronized
     fun priceStats(category: String?): PriceStatsDto {
         val sql = if (category.isNullOrBlank()) {

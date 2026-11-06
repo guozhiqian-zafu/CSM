@@ -57,6 +57,16 @@
     </fragment>
 
     <fragment
+        android:id="@+id/conversationsFragment"
+        android:name="com.csm.market.ui.messages.ConversationsFragment"
+        android:label="@string/conversations_title"
+        tools:layout="@layout/fragment_conversations">
+        <action
+            android:id="@+id/action_conversations_to_messages"
+            app:destination="@id/messagesFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/publishFragment"
         android:name="com.csm.market.ui.publish.PublishFragment"
         android:label="@string/publish_title"
@@ -81,6 +91,9 @@
         <action
             android:id="@+id/action_profile_to_my_listings"
             app:destination="@id/myListingsFragment" />
+        <action
+            android:id="@+id/action_profile_to_conversations"
+            app:destination="@id/conversationsFragment" />
     </fragment>
 
     <fragment

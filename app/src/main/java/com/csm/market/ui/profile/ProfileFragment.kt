@@ -36,7 +36,9 @@ class ProfileFragment : Fragment() {
         binding.itemMyListings.setOnClickListener {
             findNavController().navigate(R.id.action_profile_to_my_listings)
         }
-        binding.itemMyMessages.setOnClickListener(comingSoon)
+        binding.itemMyMessages.setOnClickListener {
+            findNavController().navigate(R.id.action_profile_to_conversations)
+        }
         binding.itemSettings.setOnClickListener(comingSoon)
         binding.btnLogin.setOnClickListener(comingSoon)
     }

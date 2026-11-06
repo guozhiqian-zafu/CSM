@@ -160,3 +160,18 @@ data class CreateMessageRequest(
     val content: String,
     val senderName: String = "我"
 )
+
+/**
+ * 「我的留言」会话摘要：一个商品一条。
+ *
+ * 只带列表要显示的字段，不带整段留言历史——列表页不需要，传了也是浪费流量。
+ */
+@Serializable
+data class ConversationDto(
+    val productId: String,
+    val productTitle: String,
+    val cover: String? = null,
+    val lastContent: String,
+    val lastAt: String,
+    val unreadCount: Int = 0
+)
